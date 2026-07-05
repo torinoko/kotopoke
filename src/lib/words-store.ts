@@ -3,6 +3,10 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { Word, WordInput } from "@/types/word";
 
+type StoredWord = Word & {
+  sourceTitle?: string;
+};
+
 const dataDirectory = path.join(process.cwd(), "data");
 const wordsFilePath = path.join(dataDirectory, "words.json");
 
@@ -19,7 +23,12 @@ async function ensureWordsFile() {
 async function readWords(): Promise<Word[]> {
   await ensureWordsFile();
   const file = await fs.readFile(wordsFilePath, "utf8");
-  return JSON.parse(file) as Word[];
+  const words = JSON.parse(file) as StoredWord[];
+
+  return words.map(({ sourceTitle, ...word }) => ({
+    ...word,
+    source: word.source ?? sourceTitle,
+  }));
 }
 
 async function writeWords(words: Word[]) {

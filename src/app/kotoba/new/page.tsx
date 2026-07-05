@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { createWordAction } from "@/app/kotoba/new/actions";
+import { wordFieldLimits } from "@/lib/word-validation";
 
 const inputClassName =
   "mt-2 w-full rounded-md border border-stone-200 bg-[#fffdf8] px-3 py-3 text-stone-700 outline-none transition placeholder:text-stone-400 focus:border-[#5f8f86] focus:ring-2 focus:ring-[#dfeae6]";
@@ -32,8 +33,12 @@ export default function NewWordPage() {
               type="text"
               placeholder="静謐"
               required
+              maxLength={wordFieldLimits.text}
               className={inputClassName}
             />
+            <p className="mt-1 text-xs text-stone-400">
+              {wordFieldLimits.text}文字まで
+            </p>
           </div>
 
           <div className="mt-5">
@@ -46,22 +51,30 @@ export default function NewWordPage() {
               name="reading"
               type="text"
               placeholder="せいひつ"
+              maxLength={wordFieldLimits.reading}
               className={inputClassName}
             />
+            <p className="mt-1 text-xs text-stone-400">
+              {wordFieldLimits.reading}文字まで
+            </p>
           </div>
 
           <div className="mt-5">
-            <label className={labelClassName} htmlFor="sourceTitle">
+            <label className={labelClassName} htmlFor="source">
               ひろった場所
               <span className="ml-2 text-xs text-stone-400">任意</span>
             </label>
             <input
-              id="sourceTitle"
-              name="sourceTitle"
+              id="source"
+              name="source"
               type="text"
               placeholder="本のタイトル、記事名、場所など"
+              maxLength={wordFieldLimits.source}
               className={inputClassName}
             />
+            <p className="mt-1 text-xs text-stone-400">
+              {wordFieldLimits.source}文字まで
+            </p>
           </div>
 
           <div className="mt-5">
@@ -73,8 +86,12 @@ export default function NewWordPage() {
               name="impression"
               placeholder="そのことばから、どんな感じを受け取りましたか？"
               rows={5}
+              maxLength={wordFieldLimits.impression}
               className={inputClassName}
             />
+            <p className="mt-1 text-xs text-stone-400">
+              {wordFieldLimits.impression}文字まで
+            </p>
           </div>
 
           <div className="mt-5">
@@ -86,8 +103,12 @@ export default function NewWordPage() {
               name="meaning"
               placeholder="あとで辞書や WordNet から入れる予定。今は空でも大丈夫です。"
               rows={4}
+              maxLength={wordFieldLimits.meaning}
               className={inputClassName}
             />
+            <p className="mt-1 text-xs text-stone-400">
+              {wordFieldLimits.meaning}文字まで
+            </p>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -2,7 +2,7 @@ export type Word = {
   id: string;
   text: string;
   reading?: string;
-  sourceTitle?: string;
+  source?: string;
   meaning?: string;
   relatedWords: string[];
   impression?: string;
@@ -12,7 +12,7 @@ export type Word = {
 export type WordInput = {
   text: string;
   reading?: string;
-  sourceTitle?: string;
+  source?: string;
   meaning?: string;
   impression?: string;
 };
