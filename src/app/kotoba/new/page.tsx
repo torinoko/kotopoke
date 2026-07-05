@@ -53,13 +53,13 @@ export default function NewWordPage() {
           <div className="mt-5">
             <label className={labelClassName} htmlFor="sourceTitle">
               ひろった場所
+              <span className="ml-2 text-xs text-stone-400">任意</span>
             </label>
             <input
               id="sourceTitle"
               name="sourceTitle"
               type="text"
               placeholder="本のタイトル、記事名、場所など"
-              required
               className={inputClassName}
             />
           </div>

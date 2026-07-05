@@ -22,10 +22,12 @@ export function WordDetail({ word }: WordDetailProps) {
         </time>
       </div>
 
-      <div className="mt-6">
-        <p className="text-sm font-medium text-stone-500">拾った場所</p>
-        <p className="mt-2 leading-7 text-stone-700">{word.sourceTitle}</p>
-      </div>
+      {word.sourceTitle && (
+        <div className="mt-6">
+          <p className="text-sm font-medium text-stone-500">拾った場所</p>
+          <p className="mt-2 leading-7 text-stone-700">{word.sourceTitle}</p>
+        </div>
+      )}
 
       {word.meaning && (
         <div className="mt-6">
