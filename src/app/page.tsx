@@ -32,7 +32,7 @@ export default function Home() {
                 ことばを残す
               </Link>
               <Link
-                href="/kotoba/sample"
+                href="/kotobatachi"
                 className="rounded-md border border-stone-200 bg-[#fffdf8] px-5 py-3 text-center font-medium text-stone-700 transition hover:bg-white"
               >
                 ことばを見る
