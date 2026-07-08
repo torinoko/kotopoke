@@ -1,86 +1,103 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { Word, WordInput } from "@/types/word";
+import { prisma } from "@/lib/prisma";
 
-type StoredWord = Omit<Word, "source"> & {
-  source?: string;
-  sourceTitle?: string;
+type PrismaWord = {
+  id: string;
+  text: string;
+  reading: string | null;
+  source: string | null;
+  meaning: string | null;
+  impression: string | null;
+  relatedWords: string;
+  collectedAt: string;
 };
 
-const dataDirectory = path.join(process.cwd(), "data");
-const wordsFilePath = path.join(dataDirectory, "words.json");
-
-function normalizeStoredWord({ sourceTitle, ...word }: StoredWord): Word {
-  return {
-    ...word,
-    source: word.source ?? sourceTitle,
-  };
-}
-
-function sortByCollectedAt(words: Word[]) {
-  return [...words].sort((a, b) => b.collectedAt.localeCompare(a.collectedAt));
-}
-
-async function ensureWordsFile() {
-  await fs.mkdir(dataDirectory, { recursive: true });
-
+function parseRelatedWords(value: string) {
   try {
-    await fs.access(wordsFilePath);
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((word): word is string => typeof word === "string")
+      : [];
   } catch {
-    await fs.writeFile(wordsFilePath, "[]", "utf8");
+    return [];
   }
 }
 
-async function readWords(): Promise<Word[]> {
-  await ensureWordsFile();
-  const file = await fs.readFile(wordsFilePath, "utf8");
-  const words = JSON.parse(file) as StoredWord[];
-
-  return words.map(normalizeStoredWord);
-}
-
-async function writeWords(words: Word[]) {
-  await fs.writeFile(wordsFilePath, JSON.stringify(words, null, 2), "utf8");
-}
-
-export async function getWords() {
-  const words = await readWords();
-  return sortByCollectedAt(words);
-}
-
-export async function getWord(id: string) {
-  const words = await readWords();
-  return words.find((word) => word.id === id) ?? null;
-}
-
-export async function createWord(input: WordInput) {
-  const word: Word = {
-    id: randomUUID(),
-    ...input,
-    relatedWords: [],
-    collectedAt: new Date().toISOString().slice(0, 10),
+function toWord(word: PrismaWord): Word {
+  return {
+    id: word.id,
+    text: word.text,
+    reading: word.reading ?? undefined,
+    source: word.source ?? undefined,
+    meaning: word.meaning ?? undefined,
+    impression: word.impression ?? undefined,
+    relatedWords: parseRelatedWords(word.relatedWords),
+    collectedAt: word.collectedAt,
   };
-  const words = await readWords();
-
-  await writeWords([word, ...words]);
-  return word;
 }
 
-export async function updateWord(id: string, input: WordInput) {
-  const words = await readWords();
-  const index = words.findIndex((word) => word.id === id);
+function toNullable(value: string | undefined) {
+  return value ?? null;
+}
 
-  if (index === -1) {
+export async function getWords(): Promise<Word[]> {
+  const words = await prisma.word.findMany({
+    orderBy: {
+      collectedAt: "desc",
+    },
+  });
+
+  return words.map(toWord);
+}
+
+export async function getWord(id: string): Promise<Word | null> {
+  const word = await prisma.word.findUnique({
+    where: { id },
+  });
+
+  return word ? toWord(word) : null;
+}
+
+export async function createWord(input: WordInput): Promise<Word> {
+  const word = await prisma.word.create({
+    data: {
+      id: randomUUID(),
+      text: input.text,
+      reading: toNullable(input.reading),
+      source: toNullable(input.source),
+      meaning: toNullable(input.meaning),
+      impression: toNullable(input.impression),
+      relatedWords: JSON.stringify([]),
+      collectedAt: new Date().toISOString().slice(0, 10),
+    },
+  });
+
+  return toWord(word);
+}
+
+export async function updateWord(
+  id: string,
+  input: WordInput,
+): Promise<Word | null> {
+  const currentWord = await prisma.word.findUnique({
+    where: { id },
+  });
+
+  if (!currentWord) {
     return null;
   }
 
-  const updatedWord: Word = {
-    ...words[index],
-    ...input,
-  };
+  const word = await prisma.word.update({
+    where: { id },
+    data: {
+      text: input.text,
+      reading: toNullable(input.reading),
+      source: toNullable(input.source),
+      meaning: toNullable(input.meaning),
+      impression: toNullable(input.impression),
+    },
+  });
 
-  words[index] = updatedWord;
-  await writeWords(words);
-  return updatedWord;
+  return toWord(word);
 }

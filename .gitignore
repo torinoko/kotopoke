@@ -24,6 +24,8 @@
 .DS_Store
 *.pem
 /data/
+/prisma/*.db
+/prisma/*.db-journal
 
 # debug
 npm-debug.log*
@@ -43,3 +45,5 @@ next-env.d.ts
 
 # JetBrains
 .idea
+
+/src/generated/prisma

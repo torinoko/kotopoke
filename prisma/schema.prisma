@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Word {
+  id           String @id
+  text         String
+  reading      String?
+  source       String?
+  meaning      String?
+  impression   String?
+  relatedWords String
+  collectedAt  String
+}
+
