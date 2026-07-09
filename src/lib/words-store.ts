@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Word, WordInput } from "@/types/word";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/users-store";
 
 type PrismaWord = {
   id: string;
@@ -41,8 +42,14 @@ function toNullable(value: string | undefined) {
   return value ?? null;
 }
 
+export const wordsPageSize = 10;
+
 export async function getWords(): Promise<Word[]> {
+  const user = await getCurrentUser();
   const words = await prisma.word.findMany({
+    where: {
+      userId: user.id,
+    },
     orderBy: {
       collectedAt: "desc",
     },
@@ -51,18 +58,57 @@ export async function getWords(): Promise<Word[]> {
   return words.map(toWord);
 }
 
+export async function getWordsPage(page: number): Promise<{
+  words: Word[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+}> {
+  const user = await getCurrentUser();
+  const totalCount = await prisma.word.count({
+    where: {
+      userId: user.id,
+    },
+  });
+  const totalPages = Math.max(1, Math.ceil(totalCount / wordsPageSize));
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const words = await prisma.word.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      collectedAt: "desc",
+    },
+    skip: (currentPage - 1) * wordsPageSize,
+    take: wordsPageSize,
+  });
+
+  return {
+    words: words.map(toWord),
+    totalCount,
+    currentPage,
+    totalPages,
+  };
+}
+
 export async function getWord(id: string): Promise<Word | null> {
-  const word = await prisma.word.findUnique({
-    where: { id },
+  const user = await getCurrentUser();
+  const word = await prisma.word.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
   });
 
   return word ? toWord(word) : null;
 }
 
 export async function createWord(input: WordInput): Promise<Word> {
+  const user = await getCurrentUser();
   const word = await prisma.word.create({
     data: {
       id: randomUUID(),
+      userId: user.id,
       text: input.text,
       reading: toNullable(input.reading),
       source: toNullable(input.source),
@@ -80,8 +126,12 @@ export async function updateWord(
   id: string,
   input: WordInput,
 ): Promise<Word | null> {
-  const currentWord = await prisma.word.findUnique({
-    where: { id },
+  const user = await getCurrentUser();
+  const currentWord = await prisma.word.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
   });
 
   if (!currentWord) {
