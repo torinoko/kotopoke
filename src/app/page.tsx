@@ -14,14 +14,14 @@ export default function Home() {
             <p className="text-sm font-semibold text-[#5f8f86]">
               どこかで見つけた、気になることば。
             </p>
-            <h1 className="mt-4 max-w-3xl text-5xl font-medium leading-tight tracking-normal text-stone-600 sm:text-6xl">
+            <h1 className="mt-4 max-w-3xl text-4xl font-medium leading-tight tracking-normal text-stone-600 sm:text-5xl">
               ことばをひろって、
               <br />
               そっとポケットへ。
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-9 text-stone-700">
-              響きが好きだったり、景色が浮かんだり、何となく心に残ったり。
-              ことぽけは、そんなことばとの出会いをやさしくしまっておく場所。
+            <p className="mt-4 max-w-3xl leading-8 text-stone-700">
+              響きが好きだったり、景色が浮かんだり、何となく心に残ったり。<br />
+              ことぽけは、そんなことばとの出会いをやさしくしまっておく場所です。
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
