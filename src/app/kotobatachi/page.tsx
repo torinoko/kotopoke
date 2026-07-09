@@ -1,10 +1,30 @@
 import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
-import { getWords } from "@/lib/words-store";
+import { getWordsPage } from "@/lib/words-store";
 
-export default async function WordsPage() {
-  const words = await getWords();
+type WordsPageProps = {
+  searchParams: Promise<{
+    page?: string;
+  }>;
+};
+
+function parsePage(value: string | undefined) {
+  const page = Number(value);
+  return Number.isInteger(page) && page > 0 ? page : 1;
+}
+
+function pageHref(page: number) {
+  return `/kotobatachi?page=${page}`;
+}
+
+export default async function WordsPage({ searchParams }: WordsPageProps) {
+  const { page } = await searchParams;
+  const { words, totalCount, currentPage, totalPages } = await getWordsPage(
+    parsePage(page),
+  );
+  const hasPreviousPage = currentPage > 1;
+  const hasNextPage = currentPage < totalPages;
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
@@ -17,7 +37,14 @@ export default async function WordsPage() {
 
         <section className="mt-8 flex-1">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-stone-500">{words.length}件のことば</p>
+            <p className="text-sm text-stone-500">
+              {totalCount}件のことば
+              {totalCount > 0 && (
+                <span className="ml-2">
+                  {currentPage} / {totalPages} ページ
+                </span>
+              )}
+            </p>
             <Link
               href="/kotoba/new"
               className="rounded-md bg-[#5f8f86] px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-[#4f7d75]"
@@ -77,6 +104,40 @@ export default async function WordsPage() {
                 </Link>
               ))}
             </div>
+          )}
+
+          {totalPages > 1 && (
+            <nav className="mt-8 flex items-center justify-between gap-3 border-t border-stone-200 pt-5 text-sm">
+              {hasPreviousPage ? (
+                <Link
+                  href={pageHref(currentPage - 1)}
+                  className="rounded-md border border-stone-200 bg-[#fffdf8] px-4 py-2 font-medium text-stone-700 transition hover:bg-white"
+                >
+                  前へ
+                </Link>
+              ) : (
+                <span className="rounded-md border border-stone-100 px-4 py-2 text-stone-400">
+                  前へ
+                </span>
+              )}
+
+              <span className="text-stone-500">
+                {currentPage} / {totalPages}
+              </span>
+
+              {hasNextPage ? (
+                <Link
+                  href={pageHref(currentPage + 1)}
+                  className="rounded-md border border-stone-200 bg-[#fffdf8] px-4 py-2 font-medium text-stone-700 transition hover:bg-white"
+                >
+                  次へ
+                </Link>
+              ) : (
+                <span className="rounded-md border border-stone-100 px-4 py-2 text-stone-400">
+                  次へ
+                </span>
+              )}
+            </nav>
           )}
         </section>
 
