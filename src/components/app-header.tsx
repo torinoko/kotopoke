@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/users-store";
 
 type AppHeaderProps = {
   title?: string;
@@ -7,7 +8,15 @@ type AppHeaderProps = {
   className?: string;
 };
 
-export function AppHeader({ title, description, className = "" }: AppHeaderProps) {
+export async function AppHeader({
+  title,
+  description,
+  className = "",
+}: AppHeaderProps) {
+  const user = await getCurrentUser();
+  const wordsLinkLabel =
+    user.name === "名無しさん" ? "ことばたち" : `${user.name}のことばたち`;
+
   return (
     <header className={`border-b border-stone-200 pb-4 ${className}`}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -25,7 +34,7 @@ export function AppHeader({ title, description, className = "" }: AppHeaderProps
 
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-stone-500">
           <Link href="/kotobatachi" className="transition hover:text-[#5f8f86]">
-            ことばたち
+            {wordsLinkLabel}
           </Link>
         </nav>
       </div>

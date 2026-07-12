@@ -1,8 +1,10 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { cookies } from "next/headers";
 import { User } from "@/types/user";
 import { prisma } from "@/lib/prisma";
 
 export const defaultUserId = "local-user";
+export const currentUserIdCookieName = "kotopoke_current_user_id";
 
 type StoredUser = {
   id: string;
@@ -36,21 +38,37 @@ function hashRecoveryCode(recoveryCode: string) {
   return createHash("sha256").update(recoveryCode).digest("hex");
 }
 
-export async function getCurrentUser(): Promise<User> {
+async function getCurrentUserId() {
+  const cookieStore = await cookies();
+  return cookieStore.get(currentUserIdCookieName)?.value ?? defaultUserId;
+}
+
+async function getDefaultUser() {
   const user = await prisma.user.upsert({
     where: { id: defaultUserId },
     update: {
-      name: "ローカルユーザー",
-      slug: "local-user",
+      name: "名無しさん",
+      slug: "default-user",
     },
     create: {
       id: defaultUserId,
-      name: "ローカルユーザー",
-      slug: "local-user",
+      name: "名無しさん",
+      slug: "default-user",
     },
   });
 
   return toUser(user);
+}
+
+export async function getCurrentUser(): Promise<User> {
+  const currentUserId = await getCurrentUserId();
+  const user = await prisma.user.findUnique({
+    where: {
+      id: currentUserId,
+    },
+  });
+
+  return user ? toUser(user) : getDefaultUser();
 }
 
 export async function createUser(input: {

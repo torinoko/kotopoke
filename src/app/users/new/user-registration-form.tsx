@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useRef } from "react";
 import { registerUserAction } from "./actions";
 import type { RegisterUserState } from "./actions";
 
@@ -15,10 +16,21 @@ const inputClassName =
 const labelClassName = "block text-sm font-medium text-stone-500";
 
 export function UserRegistrationForm() {
+  const router = useRouter();
+  const refreshedAfterSuccess = useRef(false);
   const [state, formAction, isPending] = useActionState(
     registerUserAction,
     initialState,
   );
+
+  useEffect(() => {
+    if (state.status !== "success" || refreshedAfterSuccess.current) {
+      return;
+    }
+
+    refreshedAfterSuccess.current = true;
+    router.refresh();
+  }, [router, state.status]);
 
   if (state.status === "success" && state.user && state.recoveryCode) {
     const recoveryCodeText = [

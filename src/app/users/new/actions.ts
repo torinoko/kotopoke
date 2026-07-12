@@ -1,6 +1,11 @@
 "use server";
 
-import { createUser, isValidSlug } from "@/lib/users-store";
+import { cookies } from "next/headers";
+import {
+  createUser,
+  currentUserIdCookieName,
+  isValidSlug,
+} from "@/lib/users-store";
 
 export type RegisterUserState = {
   status: "idle" | "success" | "error";
@@ -62,6 +67,15 @@ export async function registerUserAction(
         message: "入力内容を確認してください。",
       };
     }
+
+    const cookieStore = await cookies();
+    cookieStore.set(currentUserIdCookieName, result.user.id, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
 
     return {
       status: "success",
