@@ -28,11 +28,11 @@ export function isValidSlug(slug: string) {
   return /^[a-z0-9][a-z0-9-]{2,29}$/.test(slug);
 }
 
-export function generateRecoveryCode() {
+function generateRecoveryCode() {
   return randomBytes(24).toString("base64url");
 }
 
-export function hashRecoveryCode(recoveryCode: string) {
+function hashRecoveryCode(recoveryCode: string) {
   return createHash("sha256").update(recoveryCode).digest("hex");
 }
 

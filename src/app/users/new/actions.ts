@@ -38,10 +38,10 @@ export async function registerUserAction(
   const name = getText(formData, "name");
   const slug = getText(formData, "slug").toLowerCase();
 
-  if (!name || name.length > 40) {
+  if (!name || name.length > 20) {
     return {
       status: "error",
-      message: "表示名は1文字以上40文字以内で入力してください。",
+      message: "表示名は1文字以上20文字以内で入力してください。",
     };
   }
 

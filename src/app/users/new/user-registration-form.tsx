@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import {
-  RegisterUserState,
-  registerUserAction,
-} from "@/app/users/new/actions";
+import { registerUserAction } from "./actions";
+import type { RegisterUserState } from "./actions";
 
 const initialState: RegisterUserState = {
   status: "idle",
@@ -23,6 +21,19 @@ export function UserRegistrationForm() {
   );
 
   if (state.status === "success" && state.user && state.recoveryCode) {
+    const recoveryCodeText = [
+      "ことぽけ リカバリコード",
+      "",
+      `表示名: ${state.user.name}`,
+      `URL ID: ${state.user.slug}`,
+      `ユーザーURL: ${state.user.url}`,
+      "",
+      `リカバリコード: ${state.recoveryCode}`,
+      "",
+      "このコードは再表示できません。端末を失った場合の復旧に使うため、手元に保存してください。",
+    ].join("\n");
+    const recoveryCodeDownloadHref = `data:text/plain;charset=utf-8,${encodeURIComponent(recoveryCodeText)}`;
+
     return (
       <section className="mt-8 rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm">
         <h2 className="text-2xl font-medium text-stone-600">
@@ -60,6 +71,13 @@ export function UserRegistrationForm() {
           <p className="mt-3 text-sm leading-6 text-stone-600">
             このコードは再表示できません。端末を失った場合の復旧に使うため、手元に保存してください。
           </p>
+          <a
+            href={recoveryCodeDownloadHref}
+            download={`kotopoke-recovery-${state.user.slug}.txt`}
+            className="mt-4 inline-flex rounded-md border border-stone-200 bg-[#fffdf8] px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-white"
+          >
+            リカバリコードをダウンロード
+          </a>
         </div>
       </section>
     );
@@ -79,11 +97,11 @@ export function UserRegistrationForm() {
           name="name"
           type="text"
           required
-          maxLength={40}
-          placeholder="例: aki"
+          maxLength={10}
+          placeholder="koto"
           className={inputClassName}
         />
-        <p className="mt-1 text-xs text-stone-400">40文字まで</p>
+        <p className="mt-1 text-xs text-stone-400">10文字まで</p>
       </div>
 
       <div className="mt-5">
@@ -96,13 +114,13 @@ export function UserRegistrationForm() {
           type="text"
           required
           minLength={3}
-          maxLength={30}
+          maxLength={20}
           pattern="[a-zA-Z0-9][a-zA-Z0-9-]{2,29}"
-          placeholder="例: aki-kotoba"
+          placeholder="例: koto-koto"
           className={inputClassName}
         />
         <p className="mt-1 text-xs text-stone-400">
-          半角英数字またはハイフン。3文字以上30文字以内。
+          半角英数字またはハイフン。3文字以上20文字以内。
         </p>
       </div>
 

@@ -19,12 +19,12 @@ export default function Home() {
               <br />
               そっとポケットへ。
             </h1>
-            <p className="mt-4 max-w-3xl leading-8 text-stone-700">
+            <p className="mt-6 max-w-3xl leading-8 text-stone-700">
               響きが好きだったり、景色が浮かんだり、何となく心に残ったり。<br />
               ことぽけは、そんなことばとの出会いをやさしくしまっておく場所です。
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/kotoba/new"
                 className="rounded-md bg-[#5f8f86] px-5 py-3 text-center font-medium text-white transition hover:bg-[#4f7d75]"
@@ -37,6 +37,19 @@ export default function Home() {
               >
                 ことばを見る
               </Link>
+            </div>
+
+            <div className="mt-6 border-l-2 border-[#dfeae6] pl-4">
+              <p className="text-sm leading-6 text-stone-500">
+                自分だけのポケットを作る場合は
+                <Link
+                  href="/users/new"
+                  className="ml-1 font-medium text-[#5f8f86] underline-offset-4 hover:underline"
+                >
+                  ユーザー登録
+                </Link>
+                へ。
+              </p>
             </div>
           </div>
 
