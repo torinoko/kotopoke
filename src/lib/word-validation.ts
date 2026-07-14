@@ -49,3 +49,33 @@ export function parseWordInput(formData: FormData): WordInput | null {
     impression: optionalText(impression),
   };
 }
+
+export function parseInitialWordInput(formData: FormData): WordInput | null {
+  const text = getText(formData, "text");
+  const reading = getText(formData, "reading");
+
+  if (!text || isTooLong("text", text) || isTooLong("reading", reading)) {
+    return null;
+  }
+
+  return {
+    text,
+    reading: optionalText(reading),
+  };
+}
+
+export function parseWordReflectionInput(
+  formData: FormData,
+): Pick<WordInput, "source" | "impression"> | null {
+  const source = getText(formData, "source");
+  const impression = getText(formData, "impression");
+
+  if (isTooLong("source", source) || isTooLong("impression", impression)) {
+    return null;
+  }
+
+  return {
+    source: optionalText(source),
+    impression: optionalText(impression),
+  };
+}

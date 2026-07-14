@@ -2,8 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { getCurrentUser } from "@/lib/users-store";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+  const isAnonymousUser = user.name === "名無しさん";
+
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
       <section className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-6 sm:px-8">
@@ -21,6 +25,7 @@ export default function Home() {
             </h1>
             <p className="mt-6 max-w-3xl leading-8 text-stone-700">
               響きが好きだったり、景色が浮かんだり、何となく心に残ったり。<br />
+              こどもの頃、道で拾った宝物をポケットへ入れたときのように。<br/>
               ことぽけは、そんなことばとの出会いをやさしくしまっておく場所です。
             </p>
 
@@ -39,18 +44,20 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="mt-6 border-l-2 border-[#dfeae6] pl-4">
-              <p className="text-sm leading-6 text-stone-500">
-                自分だけのポケットを作る場合は
-                <Link
-                  href="/users/new"
-                  className="ml-1 font-medium text-[#5f8f86] underline-offset-4 hover:underline"
-                >
-                  ユーザー登録
-                </Link>
-                へ。
-              </p>
-            </div>
+            {isAnonymousUser && (
+              <div className="mt-6 border-l-2 border-[#dfeae6] pl-4">
+                <p className="text-sm leading-6 text-stone-500">
+                  自分だけのポケットを作る場合は
+                  <Link
+                    href="/users/new"
+                    className="ml-1 font-medium text-[#5f8f86] underline-offset-4 hover:underline"
+                  >
+                    ユーザー登録
+                  </Link>
+                  へ。
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mx-auto w-full max-w-sm rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm">

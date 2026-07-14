@@ -14,8 +14,9 @@ export async function AppHeader({
   className = "",
 }: AppHeaderProps) {
   const user = await getCurrentUser();
+  const isAnonymousUser = user.name === "名無しさん";
   const wordsLinkLabel =
-    user.name === "名無しさん" ? "ことばたち" : `${user.name}のことばたち`;
+    isAnonymousUser ? "ことばたち" : `${user.name}のことばたち`;
 
   return (
     <header className={`border-b border-stone-200 pb-4 ${className}`}>
@@ -36,6 +37,11 @@ export async function AppHeader({
           <Link href="/kotobatachi" className="transition hover:text-[#5f8f86]">
             {wordsLinkLabel}
           </Link>
+          {!isAnonymousUser && (
+            <Link href="/settings" className="transition hover:text-[#5f8f86]">
+              設定
+            </Link>
+          )}
         </nav>
       </div>
 

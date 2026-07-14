@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Word, WordInput } from "@/types/word";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/users-store";
+import { formatWordNetMeanings, searchWordNet } from "@/lib/wordnet-store";
 
 type PrismaWord = {
   id: string;
@@ -40,6 +41,17 @@ function toWord(word: PrismaWord): Word {
 
 function toNullable(value: string | undefined) {
   return value ?? null;
+}
+
+async function getWordNetFields(text: string, currentMeaning?: string | null) {
+  const wordNetResult = await searchWordNet(text);
+
+  return {
+    meaning:
+      currentMeaning ??
+      (wordNetResult ? formatWordNetMeanings(wordNetResult.meanings) : undefined),
+    relatedWords: wordNetResult?.relatedWords ?? [],
+  };
 }
 
 export const wordsPageSize = 10;
@@ -100,11 +112,36 @@ export async function getWord(id: string): Promise<Word | null> {
     },
   });
 
-  return word ? toWord(word) : null;
+  if (!word) {
+    return null;
+  }
+
+  const parsedRelatedWords = parseRelatedWords(word.relatedWords);
+
+  if (word.meaning || parsedRelatedWords.length > 0) {
+    return toWord(word);
+  }
+
+  const wordNetFields = await getWordNetFields(word.text, word.meaning);
+
+  if (!wordNetFields.meaning && wordNetFields.relatedWords.length === 0) {
+    return toWord(word);
+  }
+
+  const updatedWord = await prisma.word.update({
+    where: { id: word.id },
+    data: {
+      meaning: toNullable(wordNetFields.meaning),
+      relatedWords: JSON.stringify(wordNetFields.relatedWords),
+    },
+  });
+
+  return toWord(updatedWord);
 }
 
 export async function createWord(input: WordInput): Promise<Word> {
   const user = await getCurrentUser();
+  const wordNetFields = await getWordNetFields(input.text, input.meaning);
   const word = await prisma.word.create({
     data: {
       id: randomUUID(),
@@ -112,9 +149,9 @@ export async function createWord(input: WordInput): Promise<Word> {
       text: input.text,
       reading: toNullable(input.reading),
       source: toNullable(input.source),
-      meaning: toNullable(input.meaning),
+      meaning: toNullable(wordNetFields.meaning),
       impression: toNullable(input.impression),
-      relatedWords: JSON.stringify([]),
+      relatedWords: JSON.stringify(wordNetFields.relatedWords),
       collectedAt: new Date().toISOString().slice(0, 10),
     },
   });
@@ -145,6 +182,33 @@ export async function updateWord(
       reading: toNullable(input.reading),
       source: toNullable(input.source),
       meaning: toNullable(input.meaning),
+      impression: toNullable(input.impression),
+    },
+  });
+
+  return toWord(word);
+}
+
+export async function updateWordReflection(
+  id: string,
+  input: Pick<WordInput, "source" | "impression">,
+): Promise<Word | null> {
+  const user = await getCurrentUser();
+  const currentWord = await prisma.word.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  if (!currentWord) {
+    return null;
+  }
+
+  const word = await prisma.word.update({
+    where: { id },
+    data: {
+      source: toNullable(input.source),
       impression: toNullable(input.impression),
     },
   });

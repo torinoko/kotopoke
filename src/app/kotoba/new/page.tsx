@@ -116,7 +116,7 @@ export default function NewWordPage() {
               type="submit"
               className="rounded-md bg-[#5f8f86] px-5 py-3 text-center font-medium text-white transition hover:bg-[#4f7d75]"
             >
-              登録する
+              意味を取得する
             </button>
             <Link
               href="/"
@@ -127,7 +127,7 @@ export default function NewWordPage() {
           </div>
 
           <p className="mt-4 text-sm leading-6 text-stone-500">
-            登録すると、この端末のプロジェクト内にある data/words.json に保存されます。
+            読み方が空の場合は、取得できる範囲で自動補完します。
           </p>
         </form>
 

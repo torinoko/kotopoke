@@ -1,11 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { parseWordInput } from "@/lib/word-validation";
+import { parseInitialWordInput } from "@/lib/word-validation";
 import { createWord } from "@/lib/words-store";
 
 export async function createWordAction(formData: FormData) {
-  const input = parseWordInput(formData);
+  const input = parseInitialWordInput(formData);
 
   if (!input) {
     redirect("/kotoba/new");
@@ -13,5 +13,5 @@ export async function createWordAction(formData: FormData) {
 
   const word = await createWord(input);
 
-  redirect(`/kotoba/${word.id}`);
+  redirect(`/kotoba/${word.id}/collect`);
 }
