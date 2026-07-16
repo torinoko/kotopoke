@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { DeleteWordForm } from "@/components/delete-word-form";
 import { wordFieldLimits } from "@/lib/word-validation";
 import { getWord } from "@/lib/words-store";
 import {
@@ -150,14 +151,7 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
 
         <section className="mt-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <form action={deleteAction} className="shrink-0">
-              <button
-                type="submit"
-                className="rounded-md px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
-              >
-                このことばを削除
-              </button>
-            </form>
+            <DeleteWordForm action={deleteAction} />
           </div>
         </section>
 
