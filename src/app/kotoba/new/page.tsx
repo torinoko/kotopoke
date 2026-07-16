@@ -31,7 +31,7 @@ export default function NewWordPage() {
               id="text"
               name="text"
               type="text"
-              placeholder="静謐"
+              placeholder="静寂"
               required
               maxLength={wordFieldLimits.text}
               className={inputClassName}
@@ -50,7 +50,7 @@ export default function NewWordPage() {
               id="reading"
               name="reading"
               type="text"
-              placeholder="せいひつ"
+              placeholder="せいじゃく"
               maxLength={wordFieldLimits.reading}
               className={inputClassName}
             />

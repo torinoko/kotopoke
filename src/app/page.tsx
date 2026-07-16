@@ -27,8 +27,9 @@ export default async function Home() {
             </h1>
             <p className="mt-6 max-w-3xl leading-8 text-stone-700">
               響きが好きだったり、景色が浮かんだり、何となく心に残ったり。<br />
-              こどもの頃、道で拾った宝物をポケットへ入れたときのように。<br/>
-              ことぽけは、そんなことばとの出会いをやさしくしまっておく場所です。
+              そんなことばに出会うことはありませんか？<br/>
+              ことぽけは、そんなことばとの出会いをやさしくしまっておく場所です。 <br/>
+              こどもの頃、みつけた宝物をこっそりポケットへ入れたときのように。
             </p>
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -57,6 +58,16 @@ export default async function Home() {
                     ユーザー登録
                   </Link>
                   へ。
+                </p>
+                <p className="text-sm leading-6 text-stone-500">
+                  アカウントをお持ちの方は
+                  <Link
+                    href="/login"
+                    className="ml-1 font-medium text-[#5f8f86] underline-offset-4 hover:underline"
+                  >
+                    ログイン
+                  </Link>
+                  してください。
                 </p>
               </div>
             )}
@@ -107,21 +118,6 @@ export default async function Home() {
             </div>
           </div>
         </div>
-
-        <section
-          id="concept"
-          className="border-t border-stone-200 py-8 text-stone-700"
-        >
-          <h2 className="text-2xl font-medium text-stone-600">
-            集めるのはたいせつなことば
-          </h2>
-          <p className="mt-4 max-w-3xl leading-8">
-            ことぽけは「このことば、好きだな」と思った瞬間を残していくアプリです。<br />
-            こどものころ、自分だけのたからものを見つけて拾ったときのように。<br />
-            庭で、道端で、公園で、海辺で、森の中で、そして本の中で。
-          </p>
-        </section>
-
         <AppFooter />
       </section>
     </main>
