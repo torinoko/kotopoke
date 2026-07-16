@@ -75,10 +75,35 @@ export default async function Home() {
               <p className="text-sm font-medium text-stone-500">
                 今日のポケット
               </p>
-              <p className="mt-2 text-3xl font-medium text-stone-600">静謐</p>
-              <p className="mt-3 leading-7 text-stone-700">
-                静かというより、空気まで澄んでいる感じがした。
-              </p>
+              {todaysWord ? (
+                <>
+                  <Link
+                    href={`/kotoba/${todaysWord.id}`}
+                    className="mt-2 block break-words text-3xl font-medium text-stone-600 transition hover:text-[#5f8f86]"
+                  >
+                    {todaysWord.text}
+                  </Link>
+                  {todaysWord.reading && (
+                    <p className="mt-2 text-sm text-stone-500">
+                      {todaysWord.reading}
+                    </p>
+                  )}
+                  {todaysWord.meaning && (
+                    <p className="mt-3 whitespace-pre-wrap break-words leading-7 text-stone-700">
+                      {todaysWord.meaning}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="mt-2 text-2xl font-medium text-stone-600">
+                    まだ空です
+                  </p>
+                  <p className="mt-3 leading-7 text-stone-700">
+                    ことばを残すと、日替わりでここに表示されます。
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

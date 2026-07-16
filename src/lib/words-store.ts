@@ -44,6 +44,25 @@ function toNullable(value: string | undefined) {
   return value ?? null;
 }
 
+function getTodayKey() {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function getStableIndex(seed: string, size: number) {
+  let hash = 0;
+
+  for (const character of seed) {
+    hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+  }
+
+  return hash % size;
+}
+
 async function getWordNetFields(
   text: string,
   currentReading?: string | null,
@@ -109,6 +128,30 @@ export async function getWordsPage(page: number): Promise<{
     currentPage,
     totalPages,
   };
+}
+
+export async function getTodaysWord(): Promise<Word | null> {
+  const user = await getCurrentUser();
+  const totalCount = await prisma.word.count({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  if (totalCount === 0) {
+    return null;
+  }
+
+  const skip = getStableIndex(`${user.id}:${getTodayKey()}`, totalCount);
+  const word = await prisma.word.findFirst({
+    where: {
+      userId: user.id,
+    },
+    orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
+    skip,
+  });
+
+  return word ? toWord(word) : null;
 }
 
 export async function getWord(id: string): Promise<Word | null> {
