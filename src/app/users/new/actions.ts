@@ -1,10 +1,9 @@
 "use server";
 
-import { cookies } from "next/headers";
 import {
   createUser,
-  currentUserIdCookieName,
   isValidSlug,
+  setCurrentUserCookie,
 } from "@/lib/users-store";
 
 export type RegisterUserState = {
@@ -42,6 +41,7 @@ export async function registerUserAction(
 ): Promise<RegisterUserState> {
   const name = getText(formData, "name");
   const slug = getText(formData, "slug").toLowerCase();
+  const password = getText(formData, "password");
 
   if (!name || name.length > 20) {
     return {
@@ -58,8 +58,15 @@ export async function registerUserAction(
     };
   }
 
+  if (password.length < 8 || password.length > 128) {
+    return {
+      status: "error",
+      message: "パスワードは8文字以上128文字以内で入力してください。",
+    };
+  }
+
   try {
-    const result = await createUser({ name, slug });
+    const result = await createUser({ name, slug, password });
 
     if (!result) {
       return {
@@ -68,14 +75,7 @@ export async function registerUserAction(
       };
     }
 
-    const cookieStore = await cookies();
-    cookieStore.set(currentUserIdCookieName, result.user.id, {
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 365,
-      path: "/",
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
+    await setCurrentUserCookie(result.user.id);
 
     return {
       status: "success",

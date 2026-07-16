@@ -26,6 +26,7 @@ model User {
   id               String   @id
   name             String   @default("ローカルユーザー")
   slug             String   @unique @default("local-user")
+  passwordHash     String?
   recoveryCodeHash String?
   createdAt        DateTime @default(now())
   words            Word[]

@@ -3,10 +3,12 @@ import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { getCurrentUser } from "@/lib/users-store";
+import { getTodaysWord } from "@/lib/words-store";
 
 export default async function Home() {
   const user = await getCurrentUser();
   const isAnonymousUser = user.name === "名無しさん";
+  const todaysWord = await getTodaysWord();
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">

@@ -118,7 +118,7 @@ export function UserRegistrationForm() {
 
       <div className="mt-5">
         <label className={labelClassName} htmlFor="slug">
-          URL ID
+          ログインID
         </label>
         <input
           id="slug"
@@ -134,6 +134,23 @@ export function UserRegistrationForm() {
         <p className="mt-1 text-xs text-stone-400">
           半角英数字またはハイフン。3文字以上20文字以内。
         </p>
+      </div>
+
+      <div className="mt-5">
+        <label className={labelClassName} htmlFor="password">
+          パスワード
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          minLength={8}
+          maxLength={128}
+          autoComplete="new-password"
+          className={inputClassName}
+        />
+        <p className="mt-1 text-xs text-stone-400">8文字以上</p>
       </div>
 
       {state.status === "error" && state.message && (

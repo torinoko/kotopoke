@@ -42,6 +42,11 @@ export async function AppHeader({
               設定
             </Link>
           )}
+          {isAnonymousUser && (
+            <Link href="/login" className="transition hover:text-[#5f8f86]">
+              ログイン
+            </Link>
+          )}
         </nav>
       </div>
 
