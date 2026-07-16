@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { Word, WordInput } from "@/types/word";
+import { getKanaReading } from "@/lib/kana-reading-store";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/users-store";
 import { formatWordNetMeanings, searchWordNet } from "@/lib/wordnet-store";
@@ -43,10 +44,17 @@ function toNullable(value: string | undefined) {
   return value ?? null;
 }
 
-async function getWordNetFields(text: string, currentMeaning?: string | null) {
+async function getWordNetFields(
+  text: string,
+  currentReading?: string | null,
+  currentMeaning?: string | null,
+) {
   const wordNetResult = await searchWordNet(text);
+  const reading =
+    currentReading ?? wordNetResult?.reading ?? (await getKanaReading(text));
 
   return {
+    reading,
     meaning:
       currentMeaning ??
       (wordNetResult ? formatWordNetMeanings(wordNetResult.meanings) : undefined),
@@ -118,19 +126,28 @@ export async function getWord(id: string): Promise<Word | null> {
 
   const parsedRelatedWords = parseRelatedWords(word.relatedWords);
 
-  if (word.meaning || parsedRelatedWords.length > 0) {
+  if (word.reading && (word.meaning || parsedRelatedWords.length > 0)) {
     return toWord(word);
   }
 
-  const wordNetFields = await getWordNetFields(word.text, word.meaning);
+  const wordNetFields = await getWordNetFields(
+    word.text,
+    word.reading,
+    word.meaning,
+  );
 
-  if (!wordNetFields.meaning && wordNetFields.relatedWords.length === 0) {
+  if (
+    !wordNetFields.reading &&
+    !wordNetFields.meaning &&
+    wordNetFields.relatedWords.length === 0
+  ) {
     return toWord(word);
   }
 
   const updatedWord = await prisma.word.update({
     where: { id: word.id },
     data: {
+      reading: toNullable(wordNetFields.reading),
       meaning: toNullable(wordNetFields.meaning),
       relatedWords: JSON.stringify(wordNetFields.relatedWords),
     },
@@ -141,13 +158,17 @@ export async function getWord(id: string): Promise<Word | null> {
 
 export async function createWord(input: WordInput): Promise<Word> {
   const user = await getCurrentUser();
-  const wordNetFields = await getWordNetFields(input.text, input.meaning);
+  const wordNetFields = await getWordNetFields(
+    input.text,
+    input.reading,
+    input.meaning,
+  );
   const word = await prisma.word.create({
     data: {
       id: randomUUID(),
       userId: user.id,
       text: input.text,
-      reading: toNullable(input.reading),
+      reading: toNullable(wordNetFields.reading),
       source: toNullable(input.source),
       meaning: toNullable(wordNetFields.meaning),
       impression: toNullable(input.impression),

@@ -11,7 +11,11 @@ export async function createWordAction(formData: FormData) {
     redirect("/kotoba/new");
   }
 
-  const word = await createWord(input);
+  const result = await createWord(input);
 
-  redirect(`/kotoba/${word.id}/collect`);
+  if (!result.created) {
+    redirect(`/kotoba/${result.word.id}`);
+  }
+
+  redirect(`/kotoba/${result.word.id}/collect`);
 }

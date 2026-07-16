@@ -18,6 +18,8 @@ model Word {
   collectedAt  String
   userId       String?
   user         User?  @relation(fields: [userId], references: [id])
+
+  @@unique([userId, text])
 }
 
 model User {
