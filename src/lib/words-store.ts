@@ -236,3 +236,23 @@ export async function updateWordReflection(
 
   return toWord(word);
 }
+
+export async function deleteWord(id: string): Promise<boolean> {
+  const user = await getCurrentUser();
+  const currentWord = await prisma.word.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  if (!currentWord) {
+    return false;
+  }
+
+  await prisma.word.delete({
+    where: { id },
+  });
+
+  return true;
+}

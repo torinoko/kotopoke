@@ -4,7 +4,10 @@ import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { wordFieldLimits } from "@/lib/word-validation";
 import { getWord } from "@/lib/words-store";
-import { updateWordAction } from "@/app/kotoba/[id]/edit/actions";
+import {
+  deleteWordAction,
+  updateWordAction,
+} from "@/app/kotoba/[id]/edit/actions";
 
 const inputClassName =
   "mt-2 w-full rounded-md border border-stone-200 bg-[#fffdf8] px-3 py-3 text-stone-700 outline-none transition placeholder:text-stone-400 focus:border-[#5f8f86] focus:ring-2 focus:ring-[#dfeae6]";
@@ -26,6 +29,7 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
   }
 
   const action = updateWordAction.bind(null, word.id);
+  const deleteAction = deleteWordAction.bind(null, word.id);
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
@@ -143,6 +147,19 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
             </Link>
           </div>
         </form>
+
+        <section className="mt-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <form action={deleteAction} className="shrink-0">
+              <button
+                type="submit"
+                className="rounded-md px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
+              >
+                このことばを削除
+              </button>
+            </form>
+          </div>
+        </section>
 
         <AppFooter />
       </div>
