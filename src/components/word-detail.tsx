@@ -9,7 +9,6 @@ export function WordDetail({ word }: WordDetailProps) {
     <section className="mt-8 rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm">
       <div className="flex flex-col gap-2 border-b border-stone-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-stone-500">ことば</p>
           <h2 className="mt-2 break-words text-4xl font-medium text-stone-600">
             {word.text}
           </h2>
