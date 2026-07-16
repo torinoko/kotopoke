@@ -104,7 +104,7 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
 
           <div className="mt-5">
             <label className={labelClassName} htmlFor="impression">
-              受け取った印象
+              ことばの印象
             </label>
             <textarea
               id="impression"
