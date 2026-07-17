@@ -12,6 +12,7 @@ type StoredUser = {
   id: string;
   name: string;
   slug: string;
+  isPublic: boolean;
   createdAt: Date;
 };
 
@@ -20,6 +21,7 @@ function toUser(user: StoredUser): User {
     id: user.id,
     name: user.name,
     slug: user.slug,
+    isPublic: user.isPublic,
     createdAt: user.createdAt,
   };
 }
@@ -66,11 +68,13 @@ async function getDefaultUser() {
     update: {
       name: "名無しさん",
       slug: "default-user",
+      isPublic: false,
     },
     create: {
       id: defaultUserId,
       name: "名無しさん",
       slug: "default-user",
+      isPublic: false,
     },
   });
 
@@ -135,6 +139,27 @@ export async function getUserBySlug(slug: string): Promise<User | null> {
   });
 
   return user ? toUser(user) : null;
+}
+
+export async function updateCurrentUserVisibility(
+  isPublic: boolean,
+): Promise<User | null> {
+  const currentUserId = await getCurrentUserId();
+
+  if (currentUserId === defaultUserId) {
+    return null;
+  }
+
+  const user = await prisma.user.update({
+    where: {
+      id: currentUserId,
+    },
+    data: {
+      isPublic,
+    },
+  });
+
+  return toUser(user);
 }
 
 export async function authenticateUser(input: {

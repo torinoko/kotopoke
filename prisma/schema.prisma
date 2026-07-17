@@ -28,6 +28,7 @@ model User {
   slug             String   @unique @default("local-user")
   passwordHash     String?
   recoveryCodeHash String?
+  isPublic         Boolean  @default(false)
   createdAt        DateTime @default(now())
   words            Word[]
 }

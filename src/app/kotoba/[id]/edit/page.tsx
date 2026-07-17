@@ -4,7 +4,7 @@ import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { DeleteWordForm } from "@/components/delete-word-form";
 import { wordFieldLimits } from "@/lib/word-validation";
-import { getWord } from "@/lib/words-store";
+import { getOwnWord } from "@/lib/words-store";
 import {
   deleteWordAction,
   updateWordAction,
@@ -23,7 +23,7 @@ type EditWordPageProps = {
 
 export default async function EditWordPage({ params }: EditWordPageProps) {
   const { id } = await params;
-  const word = await getWord(id);
+  const word = await getOwnWord(id);
 
   if (!word) {
     notFound();

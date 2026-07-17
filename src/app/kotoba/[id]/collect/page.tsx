@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { wordFieldLimits } from "@/lib/word-validation";
-import { getWord } from "@/lib/words-store";
+import { getOwnWord } from "@/lib/words-store";
 import { updateWordReflectionAction } from "@/app/kotoba/[id]/collect/actions";
 
 const inputClassName =
@@ -19,7 +19,7 @@ type CollectWordPageProps = {
 
 export default async function CollectWordPage({ params }: CollectWordPageProps) {
   const { id } = await params;
-  const word = await getWord(id);
+  const word = await getOwnWord(id);
 
   if (!word) {
     notFound();

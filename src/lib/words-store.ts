@@ -199,8 +199,25 @@ export async function getWord(id: string): Promise<Word | null> {
   return toWord(updatedWord);
 }
 
-export async function createWord(input: WordInput): Promise<Word> {
+export async function createWord(input: WordInput): Promise<{
+  word: Word;
+  created: boolean;
+}> {
   const user = await getCurrentUser();
+  const existingWord = await prisma.word.findFirst({
+    where: {
+      userId: user.id,
+      text: input.text,
+    },
+  });
+
+  if (existingWord) {
+    return {
+      word: toWord(existingWord),
+      created: false,
+    };
+  }
+
   const wordNetFields = await getWordNetFields(
     input.text,
     input.reading,
@@ -220,7 +237,10 @@ export async function createWord(input: WordInput): Promise<Word> {
     },
   });
 
-  return toWord(word);
+  return {
+    word: toWord(word),
+    created: true,
+  };
 }
 
 export async function updateWord(

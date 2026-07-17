@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { VisibilitySettingsForm } from "@/components/visibility-settings-form";
 import { getCurrentUser } from "@/lib/users-store";
+import { updateVisibilityAction } from "./actions";
 
 export default async function SettingsPage() {
   const user = await getCurrentUser();
@@ -65,6 +67,19 @@ export default async function SettingsPage() {
                     </dd>
                   </div>
                 </dl>
+              </section>
+
+              <section className="rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm">
+                <h2 className="text-2xl font-medium text-stone-600">
+                  公開設定
+                </h2>
+                <p className="mt-4 leading-7 text-stone-700">
+                  公開しない場合、あなた以外はユーザーURLからことばたちを見られません。
+                </p>
+                <VisibilitySettingsForm
+                  isPublic={user.isPublic}
+                  action={updateVisibilityAction}
+                />
               </section>
 
               <section className="rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm">
