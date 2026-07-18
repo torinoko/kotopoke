@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const footerLinks = [
-  { href: "/about", label: "製作者" },
+  { href: "/about", label: "ことぽけについて" },
   { href: "/terms", label: "利用規約" },
   { href: "/privacy", label: "プライバシーポリシー" },
 ];
