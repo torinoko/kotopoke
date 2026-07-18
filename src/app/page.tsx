@@ -26,10 +26,10 @@ export default async function Home() {
               そっとポケットへ。
             </h1>
             <p className="mt-6 max-w-3xl leading-8 text-stone-700">
-              響きが好きだったり、景色が浮かんだり、何となく心に残ったり。<br />
+              響きが好きだったり、景色が浮かんだり、ふと心に残ったり。<br />
               そんなことばに出会うことはありませんか？<br/>
               ことぽけは、そんなことばとの出会いをやさしくしまっておく場所です。 <br/>
-              こどもの頃、みつけた宝物をこっそりポケットへ入れたときのように。
+              こどもの頃、みつけた宝物をこっそりポケットへしまったときのように。
             </p>
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
