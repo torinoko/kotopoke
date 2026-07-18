@@ -14,7 +14,7 @@ export default function NewWordPage() {
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
       <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-5 py-8 sm:px-8">
         <AppHeader
-          title="ことばを拾う"
+          title="ことばをしまう"
           description="気になったことばを、忘れないうちにポケットへしまいましょう。"
           className="pb-6"
         />

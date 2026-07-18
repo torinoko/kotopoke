@@ -49,7 +49,7 @@ export default async function WordsPage({ searchParams }: WordsPageProps) {
               href="/kotoba/new"
               className="rounded-md bg-[#5f8f86] px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-[#4f7d75]"
             >
-              ことばを残す
+              ことばをしまう
             </Link>
           </div>
 
@@ -65,7 +65,7 @@ export default async function WordsPage({ searchParams }: WordsPageProps) {
                 href="/kotoba/new"
                 className="mt-5 inline-block rounded-md bg-[#5f8f86] px-5 py-3 text-center font-medium text-white transition hover:bg-[#4f7d75]"
               >
-                ことばを残す
+                ことばをしまう
               </Link>
             </div>
           ) : (

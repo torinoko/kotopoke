@@ -37,7 +37,7 @@ export default async function Home() {
                 href="/kotoba/new"
                 className="rounded-md bg-[#5f8f86] px-5 py-3 text-center font-medium text-white transition hover:bg-[#4f7d75]"
               >
-                ことばを残す
+                ことばをしまう
               </Link>
               <Link
                 href="/kotobatachi"
