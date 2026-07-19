@@ -23,12 +23,12 @@ export async function AppHeader({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/" className="flex w-fit items-center gap-3">
           <Image
-            src="/kotopoke_small.png"
+            src="/kotopoke_donguri.png"
             alt="ことぽけ"
-            width={44}
-            height={44}
+            width={24}
+            height={24}
             priority
-            className="h-11 w-11"
+            className="h-8 w-8"
           />
           <span className="text-lg font-bold text-[#5f8f86]">ことぽけ</span>
         </Link>

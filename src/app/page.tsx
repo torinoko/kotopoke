@@ -12,10 +12,20 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
-      <section className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-6 sm:px-8">
+      <section className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-2 py-6 sm:px-4">
         <AppHeader />
+          <div className="mt-8 flex justify-end">
+              <Image
+                  src="/kotopoke_main_logo.png"
+                  alt="ことぽけ"
+                  width={160}
+                  height={160}
+                  priority
+                  className="h-40 w-40 items-right left-0"
+              />
+          </div>
 
-        <div className="grid flex-1 items-center gap-10 py-10 lg:grid-cols-[1fr_360px]">
+        <div className="grid flex-1 gap-10 py-6 lg:grid-cols-[1fr_360px]">
           <div>
             <p className="text-sm font-semibold text-[#5f8f86]">
               どこかで見つけた、気になることば。
@@ -48,7 +58,7 @@ export default async function Home() {
             </div>
 
             {isAnonymousUser && (
-              <div className="mt-6 border-l-2 border-[#dfeae6] pl-4">
+              <div className="mt-12 border-l-2 border-[#dfeae6] pl-4">
                 <p className="text-sm leading-6 text-stone-500">
                   自分だけのポケットを作る場合は
                   <Link
@@ -73,16 +83,8 @@ export default async function Home() {
             )}
           </div>
 
-          <div className="mx-auto w-full max-w-sm rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm">
-            <Image
-              src="/kotopoke_main_logo.png"
-              alt="ことぽけ"
-              width={160}
-              height={160}
-              priority
-              className="mx-auto h-40 w-40"
-            />
-            <div className="mt-6 rounded-md bg-[#f4efe4] p-4">
+          <div className="mx-auto bg-[#fffdf8] p-6">
+            <div className="ounded-md bg-[#f4efe4] p-4">
               <p className="text-sm font-medium text-stone-500">
                 今日のポケット
               </p>

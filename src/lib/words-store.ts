@@ -69,8 +69,7 @@ async function getWordNetFields(
   currentMeaning?: string | null,
 ) {
   const wordNetResult = await searchWordNet(text);
-  const reading =
-    currentReading ?? wordNetResult?.reading ?? (await getKanaReading(text));
+  const reading = currentReading ?? (await getKanaReading(text));
 
   return {
     reading,
@@ -130,6 +129,41 @@ export async function getWordsPage(page: number): Promise<{
   };
 }
 
+export async function getWordsPageByUserId(
+  userId: string,
+  page: number,
+): Promise<{
+  words: Word[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+}> {
+  const totalCount = await prisma.word.count({
+    where: {
+      userId,
+    },
+  });
+  const totalPages = Math.max(1, Math.ceil(totalCount / wordsPageSize));
+  const currentPage = Math.min(Math.max(page, 1), totalPages);
+  const words = await prisma.word.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      collectedAt: "desc",
+    },
+    skip: (currentPage - 1) * wordsPageSize,
+    take: wordsPageSize,
+  });
+
+  return {
+    words: words.map(toWord),
+    totalCount,
+    currentPage,
+    totalPages,
+  };
+}
+
 export async function getTodaysWord(): Promise<Word | null> {
   const user = await getCurrentUser();
   const totalCount = await prisma.word.count({
@@ -154,19 +188,7 @@ export async function getTodaysWord(): Promise<Word | null> {
   return word ? toWord(word) : null;
 }
 
-export async function getWord(id: string): Promise<Word | null> {
-  const user = await getCurrentUser();
-  const word = await prisma.word.findFirst({
-    where: {
-      id,
-      userId: user.id,
-    },
-  });
-
-  if (!word) {
-    return null;
-  }
-
+async function addMissingDictionaryFields(word: PrismaWord): Promise<Word> {
   const parsedRelatedWords = parseRelatedWords(word.relatedWords);
 
   if (word.reading && (word.meaning || parsedRelatedWords.length > 0)) {
@@ -197,6 +219,62 @@ export async function getWord(id: string): Promise<Word | null> {
   });
 
   return toWord(updatedWord);
+}
+
+export async function getOwnWord(id: string): Promise<Word | null> {
+  const user = await getCurrentUser();
+  const word = await prisma.word.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  if (!word) {
+    return null;
+  }
+
+  return addMissingDictionaryFields(word);
+}
+
+export async function getWord(id: string): Promise<Word | null> {
+  const user = await getCurrentUser();
+  const word = await prisma.word.findFirst({
+    where: {
+      id,
+      OR: [
+        {
+          userId: user.id,
+        },
+        {
+          user: {
+            isPublic: true,
+          },
+        },
+      ],
+    },
+  });
+
+  if (!word) {
+    return null;
+  }
+
+  return addMissingDictionaryFields(word);
+}
+
+export async function canEditWord(id: string): Promise<boolean> {
+  const user = await getCurrentUser();
+  const word = await prisma.word.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return Boolean(word);
 }
 
 export async function createWord(input: WordInput): Promise<{

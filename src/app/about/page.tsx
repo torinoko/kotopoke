@@ -1,4 +1,5 @@
 import { StaticPage } from "@/components/static-page";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -7,16 +8,16 @@ export default function AboutPage() {
       description="ことぽけのはじまり。"
     >
       <p>
-        ことばというものが好きな文鳥がこつこつつくっています。
+        ことばというものが好きな文鳥がこつこつとつくっています。
       </p>
       <p className="mt-4">
-        最初は「語彙を増やしたい」という、ごく素朴な気持ちからつくり始めました。<br/>
+        最初は「語彙を増やしたい」という、ごく素朴なきもちからつくり始めました。<br/>
         初めて知ったことばを登録する、ただそれだけの小さなアプリでした。<br/>
-        ですがつくっているうちに、まるで宝物を集めているようなきもちになってきたのです。<br/>
+        ですがつくっていくうちに、まるで宝物を集めているようなきもちになってきたのです。<br/>
       </p>
       <p className="mt-4">
         思えばことばといふものは、自分にとってまさに宝物でありました。<br/>
-        新しいことばを知るたびにほんの少しだけ、胸が高鳴ります。<br/>
+        新しいことばを知るたび、ほんの少しだけ、胸が高鳴ります。<br/>
         それはこどもの頃にどこかで見つけたどんぐりや小石、小枝、貝殻のような。<br/>
         そしてそれをこっそり、大切にポケットにしまったときのあのきもち。<br/>
       </p>
@@ -38,7 +39,15 @@ export default function AboutPage() {
         これから少しずつ育てていきたいと思っています。<br/>
         あなたの宝物も、この小さなポケットへ、そっとしまっていただけたらうれしいです。
       </p>
-      <p className="mt-4 text-right ">
+      <Image
+          src="/kotopoke-fumi.png"
+          alt="文"
+          width={2364}
+          height={1755}
+          priority
+          className="mt-8 h-35 w-46 items-right"
+      />
+      <p className="mt-4 text-right">
         文鳥
       </p>
     </StaticPage>
