@@ -3,7 +3,12 @@ import { promisify } from "node:util";
 import path from "node:path";
 
 const execFileAsync = promisify(execFile);
-const wordNetDbPath = path.join(process.cwd(), "prisma/wnjpn.db");
+
+function getWordNetDbPath() {
+  return process.env.WORDNET_DATABASE_PATH
+    ? path.resolve(process.env.WORDNET_DATABASE_PATH)
+    : path.join(process.cwd(), "prisma/wnjpn.db");
+}
 
 type WordNetDefinitionRow = {
   synset: string;
@@ -27,7 +32,7 @@ function quoteSqlText(value: string) {
 async function queryWordNet<T>(sql: string): Promise<T[]> {
   const { stdout } = await execFileAsync("sqlite3", [
     "-json",
-    wordNetDbPath,
+    getWordNetDbPath(),
     sql,
   ]);
 
