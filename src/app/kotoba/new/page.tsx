@@ -59,58 +59,6 @@ export default function NewWordPage() {
             </p>
           </div>
 
-          <div className="mt-5">
-            <label className={labelClassName} htmlFor="source">
-              ひろった場所
-              <span className="ml-2 text-xs text-stone-400">任意</span>
-            </label>
-            <input
-              id="source"
-              name="source"
-              type="text"
-              placeholder="本のタイトル、記事名、場所など"
-              maxLength={wordFieldLimits.source}
-              className={inputClassName}
-            />
-            <p className="mt-1 text-xs text-stone-400">
-              {wordFieldLimits.source}文字まで
-            </p>
-          </div>
-
-          <div className="mt-5">
-            <label className={labelClassName} htmlFor="impression">
-              受け取った印象
-            </label>
-            <textarea
-              id="impression"
-              name="impression"
-              placeholder="そのことばから、どんな感じを受け取りましたか？"
-              rows={5}
-              maxLength={wordFieldLimits.impression}
-              className={inputClassName}
-            />
-            <p className="mt-1 text-xs text-stone-400">
-              {wordFieldLimits.impression}文字まで
-            </p>
-          </div>
-
-          <div className="mt-5">
-            <label className={labelClassName} htmlFor="meaning">
-              ことばの意味
-            </label>
-            <textarea
-              id="meaning"
-              name="meaning"
-              placeholder="あとで辞書や WordNet から入れる予定。今は空でも大丈夫です。"
-              rows={4}
-              maxLength={wordFieldLimits.meaning}
-              className={inputClassName}
-            />
-            <p className="mt-1 text-xs text-stone-400">
-              {wordFieldLimits.meaning}文字まで
-            </p>
-          </div>
-
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
               type="submit"
