@@ -8,11 +8,5 @@ const dateTimeFormatter = new Intl.DateTimeFormat("ja-JP", {
 });
 
 export function formatDateTime(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return dateTimeFormatter.format(date);
+  return dateTimeFormatter.format(new Date(value));
 }
