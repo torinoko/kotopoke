@@ -20,7 +20,7 @@ export async function AppHeader({
 
   return (
     <header className={`border-b border-stone-200 pb-4 ${className}`}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 pb-8 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/" className="flex w-fit items-center gap-3">
           <Image
             src="/kotopoke_donguri.png"
