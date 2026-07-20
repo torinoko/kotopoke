@@ -34,6 +34,12 @@ export async function AppHeader({
         </Link>
 
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-stone-500">
+          <Link
+            href="/kotoba/random"
+            className="transition hover:text-[#5f8f86]"
+          >
+            ことばに出会う
+          </Link>
           <Link href="/kotobatachi" className="transition hover:text-[#5f8f86]">
             {wordsLinkLabel}
           </Link>

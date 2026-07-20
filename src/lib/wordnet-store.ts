@@ -21,9 +21,18 @@ type WordNetRelatedWordRow = {
   lemma: string;
 };
 
+type WordNetRandomWordRow = {
+  lemma: string;
+  def: string;
+};
+
 export type WordNetSearchResult = {
   meanings: string[];
   relatedWords: string[];
+};
+
+export type RandomWordNetEntry = WordNetSearchResult & {
+  text: string;
 };
 
 function quoteSqlText(value: string) {
@@ -114,6 +123,44 @@ export async function searchWordNet(
     console.error("Failed to search Japanese WordNet.", {
       dbPath: getWordNetDbPath(),
       text: lemma,
+      error,
+    });
+    return null;
+  }
+}
+
+export async function getRandomWordNetEntry(): Promise<RandomWordNetEntry | null> {
+  try {
+    const randomRows = await queryWordNet<WordNetRandomWordRow>(`
+      select distinct
+        word.lemma as lemma,
+        synset_def.def as def
+      from word
+      join sense on sense.wordid = word.wordid
+      join synset_def on synset_def.synset = sense.synset
+      where word.lang = 'jpn'
+        and synset_def.lang = 'jpn'
+        and length(word.lemma) between 2 and 20
+        and word.lemma not glob '*[0-9A-Za-z]*'
+      order by random()
+      limit 1;
+    `);
+    const randomWord = randomRows[0];
+
+    if (!randomWord) {
+      return null;
+    }
+
+    const searchResult = await searchWordNet(randomWord.lemma);
+
+    return {
+      text: randomWord.lemma,
+      meanings: searchResult?.meanings ?? [randomWord.def],
+      relatedWords: searchResult?.relatedWords ?? [],
+    };
+  } catch (error) {
+    console.error("Failed to get random Japanese WordNet entry.", {
+      dbPath: getWordNetDbPath(),
       error,
     });
     return null;
