@@ -21,6 +21,7 @@ export default async function RandomWordPage() {
           title="ことばにであう"
           description="辞書の中から、偶然ひとつのことばをひろいます。"
           className="pb-6"
+          logoSrc="/kotopoke_hane.png"
         />
 
         <section className="mt-8 flex-1 rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm">

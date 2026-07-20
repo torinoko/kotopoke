@@ -6,12 +6,14 @@ type AppHeaderProps = {
   title?: string;
   description?: string;
   className?: string;
+  logoSrc?: string;
 };
 
 export async function AppHeader({
   title,
   description,
   className = "",
+  logoSrc = "/kotopoke_donguri.png",
 }: AppHeaderProps) {
   const user = await getCurrentUser();
   const isAnonymousUser = user.name === "名無しさん";
@@ -23,7 +25,7 @@ export async function AppHeader({
       <div className="flex flex-col gap-4 pb-8 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/" className="flex w-fit items-center gap-3">
           <Image
-            src="/kotopoke_donguri.png"
+            src={logoSrc}
             alt="ことぽけ"
             width={24}
             height={24}
@@ -38,7 +40,7 @@ export async function AppHeader({
             href="/kotoba/random"
             className="transition hover:text-[#5f8f86]"
           >
-            ことばに出会う
+            ことばにであう
           </Link>
           <Link href="/kotobatachi" className="transition hover:text-[#5f8f86]">
             {wordsLinkLabel}

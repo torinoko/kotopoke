@@ -15,6 +15,7 @@ export async function collectRandomWordAction(formData: FormData) {
   const result = await createWord({
     text: text.trim(),
     reading: typeof reading === "string" ? reading : undefined,
+    source: "ことぽけ",
     meaning: typeof meaning === "string" ? meaning : undefined,
   });
 
