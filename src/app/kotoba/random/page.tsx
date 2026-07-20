@@ -1,24 +1,24 @@
 import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { RandomWordReading } from "@/components/random-word-reading";
 import { collectRandomWordAction } from "@/app/kotoba/random/actions";
 import {
   formatWordNetMeanings,
   getRandomWordNetEntry,
 } from "@/lib/wordnet-store";
-import { getKanaReading } from "@/lib/kana-reading-store";
 
 export const dynamic = "force-dynamic";
+const collectRandomWordFormId = "collect-random-word-form";
 
 export default async function RandomWordPage() {
   const entry = await getRandomWordNetEntry();
-  const reading = entry ? await getKanaReading(entry.text) : undefined;
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
       <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-5 py-8 sm:px-8">
         <AppHeader
-          title="ことばに出会う"
+          title="ことばにであう"
           description="辞書の中から、偶然ひとつのことばをひろいます。"
           className="pb-6"
         />
@@ -26,15 +26,13 @@ export default async function RandomWordPage() {
         <section className="mt-8 flex-1 rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm">
           {entry ? (
             <>
-              <p className="text-sm font-medium text-stone-500">
-                今日ではなく、今この瞬間の出会い
-              </p>
               <h2 className="mt-3 break-words text-4xl font-medium text-stone-600">
                 {entry.text}
               </h2>
-              {reading && (
-                <p className="mt-2 text-lg text-stone-500">{reading}</p>
-              )}
+              <RandomWordReading
+                formId={collectRandomWordFormId}
+                text={entry.text}
+              />
 
               {entry.meanings.length > 0 && (
                 <div className="mt-6">
@@ -66,9 +64,8 @@ export default async function RandomWordPage() {
               )}
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <form action={collectRandomWordAction}>
+                <form id={collectRandomWordFormId} action={collectRandomWordAction}>
                   <input type="hidden" name="text" value={entry.text} />
-                  <input type="hidden" name="reading" value={reading ?? ""} />
                   <input
                     type="hidden"
                     name="meaning"
@@ -81,12 +78,6 @@ export default async function RandomWordPage() {
                     このことばをしまう
                   </button>
                 </form>
-                <Link
-                  href="/kotoba/random"
-                  className="rounded-md border border-stone-200 bg-[#fffdf8] px-5 py-3 text-center font-medium text-stone-700 transition hover:bg-white"
-                >
-                  もう一度出会う
-                </Link>
               </div>
             </>
           ) : (

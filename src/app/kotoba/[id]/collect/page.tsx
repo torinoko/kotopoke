@@ -31,8 +31,8 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
       <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-5 py-8 sm:px-8">
         <AppHeader
-          title="ことばを眺める"
-          description="意味を見てから、ひろった場所や受け取った印象を残します。"
+          title="ことばをながめる"
+          description="ひろった場所や受け取った印象を残します。"
           className="pb-6"
         />
 
@@ -44,19 +44,6 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
             </h2>
             {word.reading && (
               <p className="mt-2 text-lg text-stone-500">{word.reading}</p>
-            )}
-          </div>
-
-          <div className="mt-6">
-            <p className="text-sm font-medium text-stone-500">意味</p>
-            {word.meaning ? (
-              <p className="mt-2 whitespace-pre-wrap break-words leading-8 text-stone-700">
-                {word.meaning}
-              </p>
-            ) : (
-              <p className="mt-2 leading-7 text-stone-500">
-                辞書から意味を見つけられませんでした。あとで編集画面から追記できます。
-              </p>
             )}
           </div>
 
@@ -84,6 +71,25 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
           className="mt-6 rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm"
         >
           <div>
+            <label className={labelClassName} htmlFor="meaning">
+              ことばの意味
+              <span className="ml-2 text-xs text-stone-400">任意</span>
+            </label>
+            <textarea
+              id="meaning"
+              name="meaning"
+              placeholder="辞書から意味を見つけられませんでした。必要であれば追記できます。"
+              defaultValue={word.meaning ?? ""}
+              rows={5}
+              maxLength={wordFieldLimits.meaning}
+              className={inputClassName}
+            />
+            <p className="mt-1 text-xs text-stone-400">
+              {wordFieldLimits.meaning}文字まで
+            </p>
+          </div>
+
+          <div className="mt-5">
             <label className={labelClassName} htmlFor="source">
               ひろった場所
               <span className="ml-2 text-xs text-stone-400">任意</span>

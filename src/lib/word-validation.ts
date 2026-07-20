@@ -66,16 +66,22 @@ export function parseInitialWordInput(formData: FormData): WordInput | null {
 
 export function parseWordReflectionInput(
   formData: FormData,
-): Pick<WordInput, "source" | "impression"> | null {
+): Pick<WordInput, "source" | "meaning" | "impression"> | null {
   const source = getText(formData, "source");
+  const meaning = getText(formData, "meaning");
   const impression = getText(formData, "impression");
 
-  if (isTooLong("source", source) || isTooLong("impression", impression)) {
+  if (
+    isTooLong("source", source) ||
+    isTooLong("meaning", meaning) ||
+    isTooLong("impression", impression)
+  ) {
     return null;
   }
 
   return {
     source: optionalText(source),
+    meaning: optionalText(meaning),
     impression: optionalText(impression),
   };
 }
