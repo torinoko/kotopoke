@@ -8,5 +8,5 @@ export const sampleWord: Word = {
   meaning: "静かで落ち着いていること。",
   relatedWords: ["静か", "穏やか"],
   impression: "静かというより、空気まで澄んでいる感じがした。",
-  collectedAt: "2026-07-18",
+  collectedAt: "2026-07-18T12:00:00.000Z",
 };

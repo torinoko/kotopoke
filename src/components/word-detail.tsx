@@ -1,4 +1,5 @@
 import { Word } from "@/types/word";
+import { formatDateTime } from "@/lib/date-format";
 
 type WordDetailProps = {
   word: Word;
@@ -16,8 +17,11 @@ export function WordDetail({ word }: WordDetailProps) {
             <p className="mt-2 text-lg text-stone-500">{word.reading}</p>
           )}
         </div>
-        <time className="shrink-0 text-sm text-stone-500">
-          {word.collectedAt}
+        <time
+          dateTime={word.collectedAt}
+          className="shrink-0 text-sm text-stone-500"
+        >
+          登録日時: {formatDateTime(word.collectedAt)}
         </time>
       </div>
 

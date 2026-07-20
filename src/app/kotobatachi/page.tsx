@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { formatDateTime } from "@/lib/date-format";
 import { getWordsPage } from "@/lib/words-store";
 
 type WordsPageProps = {
@@ -85,8 +86,11 @@ export default async function WordsPage({ searchParams }: WordsPageProps) {
                         <p className="mt-1 text-stone-500">{word.reading}</p>
                       )}
                     </div>
-                    <time className="shrink-0 text-sm text-stone-500">
-                      {word.collectedAt}
+                    <time
+                      dateTime={word.collectedAt}
+                      className="shrink-0 text-sm text-stone-500"
+                    >
+                      登録日時: {formatDateTime(word.collectedAt)}
                     </time>
                   </div>
 

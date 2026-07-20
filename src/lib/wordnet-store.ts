@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { stat } from "node:fs/promises";
 import { promisify } from "node:util";
 import path from "node:path";
 
@@ -30,9 +31,16 @@ function quoteSqlText(value: string) {
 }
 
 async function queryWordNet<T>(sql: string): Promise<T[]> {
+  const dbPath = getWordNetDbPath();
+  const dbStat = await stat(dbPath);
+
+  if (dbStat.size === 0) {
+    throw new Error(`Japanese WordNet DB is empty: ${dbPath}`);
+  }
+
   const { stdout } = await execFileAsync("sqlite3", [
     "-json",
-    getWordNetDbPath(),
+    dbPath,
     sql,
   ]);
 
@@ -103,7 +111,11 @@ export async function searchWordNet(
       ),
     };
   } catch (error) {
-    console.error("Failed to search Japanese WordNet.", error);
+    console.error("Failed to search Japanese WordNet.", {
+      dbPath: getWordNetDbPath(),
+      text: lemma,
+      error,
+    });
     return null;
   }
 }

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { formatDateTime } from "@/lib/date-format";
 import { getCurrentUser, getUserBySlug } from "@/lib/users-store";
 import { getWordsPageByUserId } from "@/lib/words-store";
 
@@ -99,8 +100,11 @@ export default async function UserPage({ params, searchParams }: UserPageProps) 
                           <p className="mt-1 text-stone-500">{word.reading}</p>
                         )}
                       </div>
-                      <time className="shrink-0 text-sm text-stone-500">
-                        {word.collectedAt}
+                      <time
+                        dateTime={word.collectedAt}
+                        className="shrink-0 text-sm text-stone-500"
+                      >
+                        登録日時: {formatDateTime(word.collectedAt)}
                       </time>
                     </div>
 

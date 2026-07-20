@@ -114,9 +114,7 @@ export async function getWordsPage(page: number): Promise<{
     where: {
       userId: user.id,
     },
-    orderBy: {
-      collectedAt: "desc",
-    },
+    orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
     skip: (currentPage - 1) * wordsPageSize,
     take: wordsPageSize,
   });
@@ -149,9 +147,7 @@ export async function getWordsPageByUserId(
     where: {
       userId,
     },
-    orderBy: {
-      collectedAt: "desc",
-    },
+    orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
     skip: (currentPage - 1) * wordsPageSize,
     take: wordsPageSize,
   });
@@ -311,7 +307,7 @@ export async function createWord(input: WordInput): Promise<{
       meaning: toNullable(wordNetFields.meaning),
       impression: toNullable(input.impression),
       relatedWords: JSON.stringify(wordNetFields.relatedWords),
-      collectedAt: new Date().toISOString().slice(0, 10),
+      collectedAt: new Date().toISOString(),
     },
   });
 
