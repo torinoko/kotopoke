@@ -161,10 +161,11 @@ export async function getWordsPageByUserId(
 }
 
 export async function getTodaysWord(): Promise<Word | null> {
-  const user = await getCurrentUser();
   const totalCount = await prisma.word.count({
     where: {
-      userId: user.id,
+      user: {
+        isPublic: true,
+      },
     },
   });
 
@@ -172,10 +173,12 @@ export async function getTodaysWord(): Promise<Word | null> {
     return null;
   }
 
-  const skip = getStableIndex(`${user.id}:${getTodayKey()}`, totalCount);
+  const skip = getStableIndex(getTodayKey(), totalCount);
   const word = await prisma.word.findFirst({
     where: {
-      userId: user.id,
+      user: {
+        isPublic: true,
+      },
     },
     orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
     skip,
