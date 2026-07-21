@@ -41,24 +41,6 @@ export default function NewWordPage() {
             </p>
           </div>
 
-          <div className="mt-5">
-            <label className={labelClassName} htmlFor="reading">
-              読み方
-              <span className="ml-2 text-xs text-stone-400">任意</span>
-            </label>
-            <input
-              id="reading"
-              name="reading"
-              type="text"
-              placeholder="せいじゃく"
-              maxLength={wordFieldLimits.reading}
-              className={inputClassName}
-            />
-            <p className="mt-1 text-xs text-stone-400">
-              {wordFieldLimits.reading}文字まで
-            </p>
-          </div>
-
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
               type="submit"
@@ -75,7 +57,7 @@ export default function NewWordPage() {
           </div>
 
           <p className="mt-4 text-sm leading-6 text-stone-500">
-            読み方が空の場合は、取得できる範囲で自動補完します。
+            読み方は次の画面で自動補完します。
           </p>
         </form>
 

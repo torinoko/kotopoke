@@ -42,9 +42,6 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
             <h2 className="mt-2 break-words text-4xl font-medium text-stone-600">
               {word.text}
             </h2>
-            {word.reading && (
-              <p className="mt-2 text-lg text-stone-500">{word.reading}</p>
-            )}
           </div>
 
           {word.relatedWords.length > 0 && (
@@ -71,6 +68,25 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
           className="mt-6 rounded-lg border border-stone-200 bg-[#fffdf8] p-6 shadow-sm"
         >
           <div>
+            <label className={labelClassName} htmlFor="reading">
+              読み方
+              <span className="ml-2 text-xs text-stone-400">任意</span>
+            </label>
+            <input
+              id="reading"
+              name="reading"
+              type="text"
+              placeholder="せいじゃく"
+              defaultValue={word.reading ?? ""}
+              maxLength={wordFieldLimits.reading}
+              className={inputClassName}
+            />
+            <p className="mt-1 text-xs text-stone-400">
+              {wordFieldLimits.reading}文字まで
+            </p>
+          </div>
+
+          <div className="mt-5">
             <label className={labelClassName} htmlFor="meaning">
               ことばの意味
               <span className="ml-2 text-xs text-stone-400">任意</span>

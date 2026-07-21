@@ -52,26 +52,26 @@ export function parseWordInput(formData: FormData): WordInput | null {
 
 export function parseInitialWordInput(formData: FormData): WordInput | null {
   const text = getText(formData, "text");
-  const reading = getText(formData, "reading");
 
-  if (!text || isTooLong("text", text) || isTooLong("reading", reading)) {
+  if (!text || isTooLong("text", text)) {
     return null;
   }
 
   return {
     text,
-    reading: optionalText(reading),
   };
 }
 
 export function parseWordReflectionInput(
   formData: FormData,
-): Pick<WordInput, "source" | "meaning" | "impression"> | null {
+): Pick<WordInput, "reading" | "source" | "meaning" | "impression"> | null {
+  const reading = getText(formData, "reading");
   const source = getText(formData, "source");
   const meaning = getText(formData, "meaning");
   const impression = getText(formData, "impression");
 
   if (
+    isTooLong("reading", reading) ||
     isTooLong("source", source) ||
     isTooLong("meaning", meaning) ||
     isTooLong("impression", impression)
@@ -80,6 +80,7 @@ export function parseWordReflectionInput(
   }
 
   return {
+    reading: optionalText(reading),
     source: optionalText(source),
     meaning: optionalText(meaning),
     impression: optionalText(impression),

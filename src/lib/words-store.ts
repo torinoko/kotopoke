@@ -349,7 +349,7 @@ export async function updateWord(
 
 export async function updateWordReflection(
   id: string,
-  input: Pick<WordInput, "source" | "meaning" | "impression">,
+  input: Pick<WordInput, "reading" | "source" | "meaning" | "impression">,
 ): Promise<Word | null> {
   const user = await getCurrentUser();
   const currentWord = await prisma.word.findFirst({
@@ -366,6 +366,7 @@ export async function updateWordReflection(
   const word = await prisma.word.update({
     where: { id },
     data: {
+      reading: toNullable(input.reading),
       source: toNullable(input.source),
       meaning: toNullable(input.meaning),
       impression: toNullable(input.impression),
