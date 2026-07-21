@@ -78,11 +78,19 @@ export function LoginForm() {
         >
           {isPending ? "ログイン中..." : "ログインする"}
         </button>
+      </div>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         <Link
           href="/password-reset"
-          className="rounded-md border border-stone-200 bg-[#fffdf8] px-5 py-3 text-center font-medium text-stone-700 transition hover:bg-white"
-        >
+          className="text-sm text-gray-500" >
           パスワードを忘れた
+        </Link>
+      </div>
+      <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Link
+          href="/users/new"
+          className="text-sm text-gray-500">
+          新規登録
         </Link>
       </div>
     </form>
