@@ -38,12 +38,6 @@ export default async function Home() {
               >
                 ことばをしまう
               </Link>
-              <Link
-                href="/kotobatachi"
-                className="rounded-md border border-stone-200 bg-[#fffdf8] px-5 py-3 text-center font-medium text-stone-700 transition hover:bg-white"
-              >
-                ことばを見る
-              </Link>
             </div>
 
             {isAnonymousUser && (
