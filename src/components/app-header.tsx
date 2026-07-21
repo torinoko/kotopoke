@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { LogoutForm } from "@/components/logout-form";
 import { getCurrentUser } from "@/lib/users-store";
 
 type AppHeaderProps = {
@@ -50,6 +51,7 @@ export async function AppHeader({
               設定
             </Link>
           )}
+          {!isAnonymousUser && <LogoutForm />}
           {isAnonymousUser && (
             <Link href="/login" className="transition hover:text-[#5f8f86]">
               ログイン

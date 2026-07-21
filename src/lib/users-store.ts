@@ -57,6 +57,11 @@ export async function setCurrentUserCookie(userId: string) {
   });
 }
 
+export async function clearCurrentUserCookie() {
+  const cookieStore = await cookies();
+  cookieStore.delete(currentUserIdCookieName);
+}
+
 async function getCurrentUserId() {
   const cookieStore = await cookies();
   return cookieStore.get(currentUserIdCookieName)?.value ?? defaultUserId;
