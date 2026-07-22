@@ -7,28 +7,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Word {
-  id           String @id
-  text         String
-  reading      String?
-  source       String?
-  meaning      String?
-  impression   String?
-  relatedWords String
-  collectedAt  String
-  userId       String?
-  user         User?  @relation(fields: [userId], references: [id])
-
-  @@unique([userId, text])
+model Kotoba {
+  id             String       @id
+  text           String       @unique
+  defaultReading String?
+  defaultMeaning String?
+  userKotobas    UserKotoba[]
 }
 
 model User {
-  id               String   @id
-  name             String   @default("ローカルユーザー")
-  slug             String   @unique @default("local-user")
+  id               String       @id
+  name             String       @default("ローカルユーザー")
+  slug             String       @unique @default("local-user")
   passwordHash     String?
   recoveryCodeHash String?
-  isPublic         Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  words            Word[]
+  isPublic         Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  userKotobas      UserKotoba[]
+}
+
+model UserKotoba {
+  id          String  @id
+  kotobaId    String
+  userId      String?
+  reading     String?
+  meaning     String?
+  source      String?
+  impression  String?
+  collectedAt String
+  kotoba      Kotoba  @relation(fields: [kotobaId], references: [id], onDelete: Cascade)
+  user        User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, kotobaId])
+  @@index([kotobaId])
 }

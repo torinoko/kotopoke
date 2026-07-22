@@ -5,38 +5,31 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/users-store";
 import { formatWordNetMeanings, searchWordNet } from "@/lib/wordnet-store";
 
-type PrismaWord = {
+type PrismaUserKotoba = {
   id: string;
-  text: string;
   reading: string | null;
   source: string | null;
   meaning: string | null;
   impression: string | null;
-  relatedWords: string;
   collectedAt: string;
+  kotoba: {
+    id: string;
+    text: string;
+    defaultReading: string | null;
+    defaultMeaning: string | null;
+  };
 };
 
-function parseRelatedWords(value: string) {
-  try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed)
-      ? parsed.filter((word): word is string => typeof word === "string")
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-function toWord(word: PrismaWord): Word {
+function toWord(userKotoba: PrismaUserKotoba, relatedWords: string[] = []): Word {
   return {
-    id: word.id,
-    text: word.text,
-    reading: word.reading ?? undefined,
-    source: word.source ?? undefined,
-    meaning: word.meaning ?? undefined,
-    impression: word.impression ?? undefined,
-    relatedWords: parseRelatedWords(word.relatedWords),
-    collectedAt: word.collectedAt,
+    id: userKotoba.id,
+    text: userKotoba.kotoba.text,
+    reading: userKotoba.reading ?? userKotoba.kotoba.defaultReading ?? undefined,
+    source: userKotoba.source ?? undefined,
+    meaning: userKotoba.meaning ?? userKotoba.kotoba.defaultMeaning ?? undefined,
+    impression: userKotoba.impression ?? undefined,
+    relatedWords,
+    collectedAt: userKotoba.collectedAt,
   };
 }
 
@@ -63,7 +56,7 @@ function getStableIndex(seed: string, size: number) {
   return hash % size;
 }
 
-async function getWordNetFields(
+async function getDictionaryFields(
   text: string,
   currentReading?: string | null,
   currentMeaning?: string | null,
@@ -80,20 +73,72 @@ async function getWordNetFields(
   };
 }
 
+async function getOrCreateKotoba(input: {
+  text: string;
+  reading?: string;
+  meaning?: string;
+}) {
+  const dictionaryFields = await getDictionaryFields(
+    input.text,
+    input.reading,
+    input.meaning,
+  );
+  const existingKotoba = await prisma.kotoba.findUnique({
+    where: {
+      text: input.text,
+    },
+  });
+
+  if (!existingKotoba) {
+    return prisma.kotoba.create({
+      data: {
+        id: randomUUID(),
+        text: input.text,
+        defaultReading: toNullable(dictionaryFields.reading),
+        defaultMeaning: toNullable(dictionaryFields.meaning),
+      },
+    });
+  }
+
+  if (
+    (!existingKotoba.defaultReading && dictionaryFields.reading) ||
+    (!existingKotoba.defaultMeaning && dictionaryFields.meaning)
+  ) {
+    return prisma.kotoba.update({
+      where: {
+        id: existingKotoba.id,
+      },
+      data: {
+        defaultReading:
+          existingKotoba.defaultReading ?? toNullable(dictionaryFields.reading),
+        defaultMeaning:
+          existingKotoba.defaultMeaning ?? toNullable(dictionaryFields.meaning),
+      },
+    });
+  }
+
+  return existingKotoba;
+}
+
+const userKotobaInclude = {
+  kotoba: true,
+} as const;
+
 export const wordsPageSize = 10;
 
 export async function getWords(): Promise<Word[]> {
   const user = await getCurrentUser();
-  const words = await prisma.word.findMany({
+  const words = await prisma.userKotoba.findMany({
     where: {
       userId: user.id,
     },
+    include: userKotobaInclude,
     orderBy: {
       collectedAt: "desc",
     },
   });
 
-  return words.map(toWord);
+  return words.map((word) => toWord(word));
 }
 
 export async function getWordsPage(page: number): Promise<{
@@ -103,24 +148,25 @@ export async function getWordsPage(page: number): Promise<{
   totalPages: number;
 }> {
   const user = await getCurrentUser();
-  const totalCount = await prisma.word.count({
+  const totalCount = await prisma.userKotoba.count({
     where: {
       userId: user.id,
     },
   });
   const totalPages = Math.max(1, Math.ceil(totalCount / wordsPageSize));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
-  const words = await prisma.word.findMany({
+  const words = await prisma.userKotoba.findMany({
     where: {
       userId: user.id,
     },
+    include: userKotobaInclude,
     orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
     skip: (currentPage - 1) * wordsPageSize,
     take: wordsPageSize,
   });
 
   return {
-    words: words.map(toWord),
+    words: words.map((word) => toWord(word)),
     totalCount,
     currentPage,
     totalPages,
@@ -136,24 +182,25 @@ export async function getWordsPageByUserId(
   currentPage: number;
   totalPages: number;
 }> {
-  const totalCount = await prisma.word.count({
+  const totalCount = await prisma.userKotoba.count({
     where: {
       userId,
     },
   });
   const totalPages = Math.max(1, Math.ceil(totalCount / wordsPageSize));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
-  const words = await prisma.word.findMany({
+  const words = await prisma.userKotoba.findMany({
     where: {
       userId,
     },
+    include: userKotobaInclude,
     orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
     skip: (currentPage - 1) * wordsPageSize,
     take: wordsPageSize,
   });
 
   return {
-    words: words.map(toWord),
+    words: words.map((word) => toWord(word)),
     totalCount,
     currentPage,
     totalPages,
@@ -161,12 +208,13 @@ export async function getWordsPageByUserId(
 }
 
 export async function getTodaysWord(): Promise<Word | null> {
-  const totalCount = await prisma.word.count({
-    where: {
-      user: {
-        isPublic: true,
-      },
+  const where = {
+    user: {
+      isPublic: true,
     },
+  };
+  const totalCount = await prisma.userKotoba.count({
+    where,
   });
 
   if (totalCount === 0) {
@@ -174,12 +222,9 @@ export async function getTodaysWord(): Promise<Word | null> {
   }
 
   const skip = getStableIndex(getTodayKey(), totalCount);
-  const word = await prisma.word.findFirst({
-    where: {
-      user: {
-        isPublic: true,
-      },
-    },
+  const word = await prisma.userKotoba.findFirst({
+    where,
+    include: userKotobaInclude,
     orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
     skip,
   });
@@ -187,46 +232,63 @@ export async function getTodaysWord(): Promise<Word | null> {
   return word ? toWord(word) : null;
 }
 
-async function addMissingDictionaryFields(word: PrismaWord): Promise<Word> {
-  const parsedRelatedWords = parseRelatedWords(word.relatedWords);
-
-  if (word.reading && (word.meaning || parsedRelatedWords.length > 0)) {
-    return toWord(word);
-  }
-
-  const wordNetFields = await getWordNetFields(
+async function addMissingDictionaryFields(
+  userKotoba: PrismaUserKotoba,
+): Promise<Word> {
+  const word = toWord(userKotoba);
+  const dictionaryFields = await getDictionaryFields(
     word.text,
     word.reading,
     word.meaning,
   );
 
   if (
-    !wordNetFields.reading &&
-    !wordNetFields.meaning &&
-    wordNetFields.relatedWords.length === 0
+    (!userKotoba.kotoba.defaultReading && dictionaryFields.reading) ||
+    (!userKotoba.kotoba.defaultMeaning && dictionaryFields.meaning)
   ) {
-    return toWord(word);
+    await prisma.kotoba.update({
+      where: {
+        id: userKotoba.kotoba.id,
+      },
+      data: {
+        defaultReading:
+          userKotoba.kotoba.defaultReading ??
+          toNullable(dictionaryFields.reading),
+        defaultMeaning:
+          userKotoba.kotoba.defaultMeaning ?? toNullable(dictionaryFields.meaning),
+      },
+    });
   }
 
-  const updatedWord = await prisma.word.update({
-    where: { id: word.id },
-    data: {
-      reading: toNullable(wordNetFields.reading),
-      meaning: toNullable(wordNetFields.meaning),
-      relatedWords: JSON.stringify(wordNetFields.relatedWords),
-    },
-  });
+  if (
+    (!userKotoba.reading && dictionaryFields.reading) ||
+    (!userKotoba.meaning && dictionaryFields.meaning)
+  ) {
+    const updatedWord = await prisma.userKotoba.update({
+      where: {
+        id: userKotoba.id,
+      },
+      include: userKotobaInclude,
+      data: {
+        reading: userKotoba.reading ?? toNullable(dictionaryFields.reading),
+        meaning: userKotoba.meaning ?? toNullable(dictionaryFields.meaning),
+      },
+    });
 
-  return toWord(updatedWord);
+    return toWord(updatedWord, dictionaryFields.relatedWords);
+  }
+
+  return toWord(userKotoba, dictionaryFields.relatedWords);
 }
 
 export async function getOwnWord(id: string): Promise<Word | null> {
   const user = await getCurrentUser();
-  const word = await prisma.word.findFirst({
+  const word = await prisma.userKotoba.findFirst({
     where: {
       id,
       userId: user.id,
     },
+    include: userKotobaInclude,
   });
 
   if (!word) {
@@ -238,7 +300,7 @@ export async function getOwnWord(id: string): Promise<Word | null> {
 
 export async function getWord(id: string): Promise<Word | null> {
   const user = await getCurrentUser();
-  const word = await prisma.word.findFirst({
+  const word = await prisma.userKotoba.findFirst({
     where: {
       id,
       OR: [
@@ -252,6 +314,7 @@ export async function getWord(id: string): Promise<Word | null> {
         },
       ],
     },
+    include: userKotobaInclude,
   });
 
   if (!word) {
@@ -263,7 +326,7 @@ export async function getWord(id: string): Promise<Word | null> {
 
 export async function canEditWord(id: string): Promise<boolean> {
   const user = await getCurrentUser();
-  const word = await prisma.word.findFirst({
+  const word = await prisma.userKotoba.findFirst({
     where: {
       id,
       userId: user.id,
@@ -281,11 +344,14 @@ export async function createWord(input: WordInput): Promise<{
   created: boolean;
 }> {
   const user = await getCurrentUser();
-  const existingWord = await prisma.word.findFirst({
+  const existingWord = await prisma.userKotoba.findFirst({
     where: {
       userId: user.id,
-      text: input.text,
+      kotoba: {
+        text: input.text,
+      },
     },
+    include: userKotobaInclude,
   });
 
   if (existingWord) {
@@ -295,23 +361,19 @@ export async function createWord(input: WordInput): Promise<{
     };
   }
 
-  const wordNetFields = await getWordNetFields(
-    input.text,
-    input.reading,
-    input.meaning,
-  );
-  const word = await prisma.word.create({
+  const kotoba = await getOrCreateKotoba(input);
+  const word = await prisma.userKotoba.create({
     data: {
       id: randomUUID(),
       userId: user.id,
-      text: input.text,
-      reading: toNullable(wordNetFields.reading),
+      kotobaId: kotoba.id,
+      reading: toNullable(input.reading ?? kotoba.defaultReading ?? undefined),
       source: toNullable(input.source),
-      meaning: toNullable(wordNetFields.meaning),
+      meaning: toNullable(input.meaning ?? kotoba.defaultMeaning ?? undefined),
       impression: toNullable(input.impression),
-      relatedWords: JSON.stringify(wordNetFields.relatedWords),
       collectedAt: new Date().toISOString(),
     },
+    include: userKotobaInclude,
   });
 
   return {
@@ -325,7 +387,7 @@ export async function updateWord(
   input: WordInput,
 ): Promise<Word | null> {
   const user = await getCurrentUser();
-  const currentWord = await prisma.word.findFirst({
+  const currentWord = await prisma.userKotoba.findFirst({
     where: {
       id,
       userId: user.id,
@@ -336,10 +398,27 @@ export async function updateWord(
     return null;
   }
 
-  const word = await prisma.word.update({
+  const kotoba = await getOrCreateKotoba(input);
+  const duplicateWord = await prisma.userKotoba.findFirst({
+    where: {
+      id: {
+        not: id,
+      },
+      userId: user.id,
+      kotobaId: kotoba.id,
+    },
+    include: userKotobaInclude,
+  });
+
+  if (duplicateWord) {
+    return toWord(duplicateWord);
+  }
+
+  const word = await prisma.userKotoba.update({
     where: { id },
+    include: userKotobaInclude,
     data: {
-      text: input.text,
+      kotobaId: kotoba.id,
       reading: toNullable(input.reading),
       source: toNullable(input.source),
       meaning: toNullable(input.meaning),
@@ -355,7 +434,7 @@ export async function updateWordReflection(
   input: Pick<WordInput, "reading" | "source" | "meaning" | "impression">,
 ): Promise<Word | null> {
   const user = await getCurrentUser();
-  const currentWord = await prisma.word.findFirst({
+  const currentWord = await prisma.userKotoba.findFirst({
     where: {
       id,
       userId: user.id,
@@ -366,8 +445,9 @@ export async function updateWordReflection(
     return null;
   }
 
-  const word = await prisma.word.update({
+  const word = await prisma.userKotoba.update({
     where: { id },
+    include: userKotobaInclude,
     data: {
       reading: toNullable(input.reading),
       source: toNullable(input.source),
@@ -381,7 +461,7 @@ export async function updateWordReflection(
 
 export async function deleteWord(id: string): Promise<boolean> {
   const user = await getCurrentUser();
-  const currentWord = await prisma.word.findFirst({
+  const currentWord = await prisma.userKotoba.findFirst({
     where: {
       id,
       userId: user.id,
@@ -392,7 +472,7 @@ export async function deleteWord(id: string): Promise<boolean> {
     return false;
   }
 
-  await prisma.word.delete({
+  await prisma.userKotoba.delete({
     where: { id },
   });
 
