@@ -25,12 +25,13 @@ export default async function WordPage({ params, searchParams }: WordPageProps) 
   }
 
   const showEditLink = await canEditWord(word.id);
+  const showCreateAnotherButton = already === "1";
   const createAnotherAction = createAnotherWordEncounterAction.bind(
     null,
     word.id,
   );
   const description =
-    already === "1"
+    showCreateAnotherButton
       ? "このことばはもうポケットにはいっています。"
       : "ポケットにしまったことばを、ゆっくりふりかえれます。";
 
@@ -53,14 +54,16 @@ export default async function WordPage({ params, searchParams }: WordPageProps) 
             >
               編集する
             </Link>
-            <form action={createAnotherAction}>
-              <button
-                type="submit"
-                className="w-full rounded-md bg-[#5f8f86] px-5 py-3 text-center font-medium text-white transition hover:bg-[#4f7d75] sm:w-auto"
-              >
-                あたらしくしまう
-              </button>
-            </form>
+            {showCreateAnotherButton && (
+              <form action={createAnotherAction}>
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-[#5f8f86] px-5 py-3 text-center font-medium text-white transition hover:bg-[#4f7d75] sm:w-auto"
+                >
+                  あたらしくしまう
+                </button>
+              </form>
+            )}
           </div>
         )}
 
