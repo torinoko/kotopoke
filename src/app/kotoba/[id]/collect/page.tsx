@@ -2,8 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { ReadingInputWithSuggestions } from "@/components/reading-input-with-suggestions";
 import { wordFieldLimits } from "@/lib/word-validation";
-import { getOwnWord } from "@/lib/words-store";
+import { getOwnWord, getReadingSuggestions } from "@/lib/words-store";
 import { updateWordReflectionAction } from "@/app/kotoba/[id]/collect/actions";
 
 const inputClassName =
@@ -26,6 +27,7 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
   }
 
   const action = updateWordReflectionAction.bind(null, word.id);
+  const readingSuggestions = await getReadingSuggestions(word.id);
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
@@ -72,14 +74,11 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
               読み方
               <span className="ml-2 text-xs text-stone-400">任意</span>
             </label>
-            <input
-              id="reading"
-              name="reading"
-              type="text"
-              placeholder="せいじゃく"
+            <ReadingInputWithSuggestions
               defaultValue={word.reading ?? ""}
+              suggestions={readingSuggestions}
               maxLength={wordFieldLimits.reading}
-              className={inputClassName}
+              inputClassName={inputClassName}
             />
             <p className="mt-1 text-xs text-stone-400">
               {wordFieldLimits.reading}文字まで
