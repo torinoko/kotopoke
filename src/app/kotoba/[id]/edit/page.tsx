@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { DeleteWordForm } from "@/components/delete-word-form";
+import { ReadingInputWithSuggestions } from "@/components/reading-input-with-suggestions";
 import { wordFieldLimits } from "@/lib/word-validation";
-import { getOwnWord } from "@/lib/words-store";
+import { getOwnWord, getReadingSuggestions } from "@/lib/words-store";
 import {
   deleteWordAction,
   updateWordAction,
@@ -31,6 +32,7 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
 
   const action = updateWordAction.bind(null, word.id);
   const deleteAction = deleteWordAction.bind(null, word.id);
+  const readingSuggestions = await getReadingSuggestions(word.id);
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
@@ -68,13 +70,11 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
               読み方
               <span className="ml-2 text-xs text-stone-400">任意</span>
             </label>
-            <input
-              id="reading"
-              name="reading"
-              type="text"
+            <ReadingInputWithSuggestions
               defaultValue={word.reading ?? ""}
+              suggestions={readingSuggestions}
               maxLength={wordFieldLimits.reading}
-              className={inputClassName}
+              inputClassName={inputClassName}
             />
             <p className="mt-1 text-xs text-stone-400">
               {wordFieldLimits.reading}文字まで

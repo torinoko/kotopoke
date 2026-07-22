@@ -379,6 +379,37 @@ export async function canEditWord(id: string): Promise<boolean> {
   return Boolean(word);
 }
 
+export async function getReadingSuggestions(id: string): Promise<string[]> {
+  const user = await getCurrentUser();
+  const word = await prisma.userKotoba.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      kotobaId: true,
+    },
+  });
+
+  if (!word) {
+    return [];
+  }
+
+  const senses = await prisma.kotobaSense.findMany({
+    where: {
+      kotobaId: word.kotobaId,
+    },
+    orderBy: {
+      reading: "asc",
+    },
+    select: {
+      reading: true,
+    },
+  });
+
+  return senses.map((sense) => sense.reading);
+}
+
 export async function createWord(input: WordInput): Promise<{
   word: Word;
   created: boolean;
