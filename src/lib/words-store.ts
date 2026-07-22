@@ -37,6 +37,10 @@ function toNullable(value: string | undefined) {
   return value ?? null;
 }
 
+function normalizeOptionalText(value: string | null | undefined) {
+  return value?.trim() || undefined;
+}
+
 function getTodayKey() {
   return new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Tokyo",
@@ -118,6 +122,36 @@ async function getOrCreateKotoba(input: {
   }
 
   return existingKotoba;
+}
+
+async function getOrCreateKotobaSense(input: {
+  kotobaId: string;
+  reading?: string | null;
+}) {
+  const reading = normalizeOptionalText(input.reading);
+
+  if (!reading) {
+    return null;
+  }
+
+  const existingSense = await prisma.kotobaSense.findFirst({
+    where: {
+      kotobaId: input.kotobaId,
+      reading,
+    },
+  });
+
+  if (existingSense) {
+    return existingSense;
+  }
+
+  return prisma.kotobaSense.create({
+    data: {
+      id: randomUUID(),
+      kotobaId: input.kotobaId,
+      reading,
+    },
+  });
 }
 
 const userKotobaInclude = {
@@ -264,12 +298,18 @@ async function addMissingDictionaryFields(
     (!userKotoba.reading && dictionaryFields.reading) ||
     (!userKotoba.meaning && dictionaryFields.meaning)
   ) {
+    const sense = await getOrCreateKotobaSense({
+      kotobaId: userKotoba.kotoba.id,
+      reading: dictionaryFields.reading,
+    });
+
     const updatedWord = await prisma.userKotoba.update({
       where: {
         id: userKotoba.id,
       },
       include: userKotobaInclude,
       data: {
+        senseId: sense?.id ?? undefined,
         reading: userKotoba.reading ?? toNullable(dictionaryFields.reading),
         meaning: userKotoba.meaning ?? toNullable(dictionaryFields.meaning),
       },
@@ -344,12 +384,18 @@ export async function createWord(input: WordInput): Promise<{
   created: boolean;
 }> {
   const user = await getCurrentUser();
+  const kotoba = await getOrCreateKotoba(input);
+  const reading = input.reading ?? kotoba.defaultReading ?? undefined;
+  const meaning = input.meaning ?? kotoba.defaultMeaning ?? undefined;
+  const sense = await getOrCreateKotobaSense({
+    kotobaId: kotoba.id,
+    reading,
+  });
   const existingWord = await prisma.userKotoba.findFirst({
     where: {
       userId: user.id,
-      kotoba: {
-        text: input.text,
-      },
+      kotobaId: kotoba.id,
+      reading: toNullable(reading),
     },
     include: userKotobaInclude,
   });
@@ -361,15 +407,15 @@ export async function createWord(input: WordInput): Promise<{
     };
   }
 
-  const kotoba = await getOrCreateKotoba(input);
   const word = await prisma.userKotoba.create({
     data: {
       id: randomUUID(),
       userId: user.id,
       kotobaId: kotoba.id,
-      reading: toNullable(input.reading ?? kotoba.defaultReading ?? undefined),
+      senseId: sense?.id,
+      reading: toNullable(reading),
       source: toNullable(input.source),
-      meaning: toNullable(input.meaning ?? kotoba.defaultMeaning ?? undefined),
+      meaning: toNullable(meaning),
       impression: toNullable(input.impression),
       collectedAt: new Date().toISOString(),
     },
@@ -406,6 +452,7 @@ export async function updateWord(
       },
       userId: user.id,
       kotobaId: kotoba.id,
+      reading: toNullable(input.reading),
     },
     include: userKotobaInclude,
   });
@@ -414,11 +461,17 @@ export async function updateWord(
     return toWord(duplicateWord);
   }
 
+  const sense = await getOrCreateKotobaSense({
+    kotobaId: kotoba.id,
+    reading: input.reading,
+  });
+
   const word = await prisma.userKotoba.update({
     where: { id },
     include: userKotobaInclude,
     data: {
       kotobaId: kotoba.id,
+      senseId: sense?.id ?? null,
       reading: toNullable(input.reading),
       source: toNullable(input.source),
       meaning: toNullable(input.meaning),
@@ -445,10 +498,16 @@ export async function updateWordReflection(
     return null;
   }
 
+  const sense = await getOrCreateKotobaSense({
+    kotobaId: currentWord.kotobaId,
+    reading: input.reading,
+  });
+
   const word = await prisma.userKotoba.update({
     where: { id },
     include: userKotobaInclude,
     data: {
+      senseId: sense?.id ?? null,
       reading: toNullable(input.reading),
       source: toNullable(input.source),
       meaning: toNullable(input.meaning),

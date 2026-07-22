@@ -8,10 +8,11 @@ datasource db {
 }
 
 model Kotoba {
-  id             String       @id
-  text           String       @unique
+  id             String        @id
+  text           String        @unique
   defaultReading String?
   defaultMeaning String?
+  senses         KotobaSense[]
   userKotobas    UserKotoba[]
 }
 
@@ -27,17 +28,30 @@ model User {
 }
 
 model UserKotoba {
-  id          String  @id
+  id          String       @id
   kotobaId    String
+  senseId     String?
   userId      String?
   reading     String?
   meaning     String?
   source      String?
   impression  String?
   collectedAt String
-  kotoba      Kotoba  @relation(fields: [kotobaId], references: [id], onDelete: Cascade)
-  user        User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  kotoba      Kotoba       @relation(fields: [kotobaId], references: [id], onDelete: Cascade)
+  sense       KotobaSense? @relation(fields: [senseId], references: [id], onDelete: SetNull)
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  @@unique([userId, kotobaId])
+  @@index([kotobaId])
+  @@index([senseId])
+}
+
+model KotobaSense {
+  id          String       @id
+  kotobaId    String
+  reading     String
+  kotoba      Kotoba       @relation(fields: [kotobaId], references: [id], onDelete: Cascade)
+  userKotobas UserKotoba[]
+
+  @@unique([kotobaId, reading])
   @@index([kotobaId])
 }
