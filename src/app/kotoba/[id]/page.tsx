@@ -52,7 +52,7 @@ export default async function WordPage({ params, searchParams }: WordPageProps) 
               href={`/kotoba/${word.id}/edit`}
               className="inline-block rounded-md border border-stone-200 bg-[#fffdf8] px-5 py-3 text-center font-medium text-stone-700 transition hover:bg-white"
             >
-              編集する
+              変更する
             </Link>
             {showCreateAnotherButton && (
               <form action={createAnotherAction}>

@@ -46,7 +46,7 @@ export default function NewWordPage() {
               type="submit"
               className="rounded-md bg-[#5f8f86] px-5 py-3 text-center font-medium text-white transition hover:bg-[#4f7d75]"
             >
-              意味を取得する
+              このことばをしまう
             </button>
             <Link
               href="/"

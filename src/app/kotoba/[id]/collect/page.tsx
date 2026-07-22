@@ -83,6 +83,7 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
             <p className="mt-1 text-xs text-stone-400">
               {wordFieldLimits.reading}文字まで
             </p>
+            <p className="text-xs font-medium text-stone-400">※ 自動補完される読み方は正しくない場合があります。</p>
           </div>
 
           <div className="mt-5">

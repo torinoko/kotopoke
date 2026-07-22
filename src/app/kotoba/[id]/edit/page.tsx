@@ -79,6 +79,24 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
             <p className="mt-1 text-xs text-stone-400">
               {wordFieldLimits.reading}文字まで
             </p>
+            <p className="text-xs font-medium text-stone-400">※ 自動補完される読み方は正しくない場合があります。</p>
+          </div>
+
+          <div className="mt-5">
+            <label className={labelClassName} htmlFor="source">
+              ことばの意味
+            </label>
+            <textarea
+              id="meaning"
+              name="meaning"
+              defaultValue={word.meaning ?? ""}
+              rows={4}
+              maxLength={wordFieldLimits.meaning}
+              className={inputClassName}
+            />
+            <p className="mt-1 text-xs text-stone-400">
+              {wordFieldLimits.meaning}文字まで
+            </p>
           </div>
 
           <div className="mt-5">
@@ -113,23 +131,6 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
             />
             <p className="mt-1 text-xs text-stone-400">
               {wordFieldLimits.impression}文字まで
-            </p>
-          </div>
-
-          <div className="mt-5">
-            <label className={labelClassName} htmlFor="meaning">
-              ことばの意味
-            </label>
-            <textarea
-              id="meaning"
-              name="meaning"
-              defaultValue={word.meaning ?? ""}
-              rows={4}
-              maxLength={wordFieldLimits.meaning}
-              className={inputClassName}
-            />
-            <p className="mt-1 text-xs text-stone-400">
-              {wordFieldLimits.meaning}文字まで
             </p>
           </div>
 

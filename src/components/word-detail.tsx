@@ -25,19 +25,19 @@ export function WordDetail({ word }: WordDetailProps) {
         </time>
       </div>
 
-      {word.source && (
-        <div className="mt-6">
-          <p className="text-sm font-medium text-stone-500">ひろった場所</p>
-          <p className="mt-2 leading-7 text-stone-700">{word.source}</p>
-        </div>
-      )}
-
       {word.meaning && (
         <div className="mt-6">
           <p className="text-sm font-medium text-stone-500">ことばの意味</p>
           <p className="mt-2 whitespace-pre-wrap break-words leading-8 text-stone-700">
             {word.meaning}
           </p>
+        </div>
+      )}
+
+      {word.source && (
+        <div className="mt-6">
+          <p className="text-sm font-medium text-stone-500">ひろった場所</p>
+          <p className="mt-2 leading-7 text-stone-700">{word.source}</p>
         </div>
       )}
 
