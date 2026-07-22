@@ -139,7 +139,7 @@ export async function getRandomWordNetEntry(): Promise<RandomWordNetEntry | null
       join sense on sense.wordid = word.wordid
       join synset_def on synset_def.synset = sense.synset
       where word.lang = 'jpn'
-        and word.pos <> 'n'
+        and word.pos not in ('n', 'v')
         and synset_def.lang = 'jpn'
         and length(word.lemma) between 2 and 20
         and word.lemma not glob '*[0-9A-Za-z]*'
