@@ -14,7 +14,7 @@ export async function createWordAction(formData: FormData) {
   const result = await createWord(input);
 
   if (!result.created) {
-    redirect(`/kotoba/${result.word.id}`);
+    redirect(`/kotoba/${result.word.id}?already=1`);
   }
 
   redirect(`/kotoba/${result.word.id}/collect`);

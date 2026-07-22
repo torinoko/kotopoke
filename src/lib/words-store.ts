@@ -459,6 +459,44 @@ export async function createWord(input: WordInput): Promise<{
   };
 }
 
+export async function createAnotherWordEncounter(id: string): Promise<Word | null> {
+  const user = await getCurrentUser();
+  const currentWord = await prisma.userKotoba.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    include: userKotobaInclude,
+  });
+
+  if (!currentWord) {
+    return null;
+  }
+
+  const reading =
+    currentWord.reading ?? currentWord.kotoba.defaultReading ?? undefined;
+  const meaning =
+    currentWord.meaning ?? currentWord.kotoba.defaultMeaning ?? undefined;
+  const sense = await getOrCreateKotobaSense({
+    kotobaId: currentWord.kotoba.id,
+    reading,
+  });
+  const word = await prisma.userKotoba.create({
+    data: {
+      id: randomUUID(),
+      userId: user.id,
+      kotobaId: currentWord.kotoba.id,
+      senseId: sense?.id,
+      reading: toNullable(reading),
+      meaning: toNullable(meaning),
+      collectedAt: new Date().toISOString(),
+    },
+    include: userKotobaInclude,
+  });
+
+  return toWord(word);
+}
+
 export async function updateWord(
   id: string,
   input: WordInput,
