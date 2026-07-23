@@ -3,9 +3,15 @@ import { notFound } from "next/navigation";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { DeleteWordForm } from "@/components/delete-word-form";
+import { MeaningTextareaWithSuggestion } from "@/components/meaning-textarea-with-suggestion";
 import { ReadingInputWithSuggestions } from "@/components/reading-input-with-suggestions";
 import { wordFieldLimits } from "@/lib/word-validation";
-import { getOwnWord, getReadingSuggestions } from "@/lib/words-store";
+import {
+  getMeaningSuggestion,
+  getOwnWord,
+  getReadingSuggestions,
+  getSavedMeaningInputValue,
+} from "@/lib/words-store";
 import {
   deleteWordAction,
   updateWordAction,
@@ -33,6 +39,8 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
   const action = updateWordAction.bind(null, word.id);
   const deleteAction = deleteWordAction.bind(null, word.id);
   const readingSuggestions = await getReadingSuggestions(word.id);
+  const savedMeaning = await getSavedMeaningInputValue(word.id);
+  const meaningSuggestion = await getMeaningSuggestion(word.id);
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
@@ -83,13 +91,12 @@ export default async function EditWordPage({ params }: EditWordPageProps) {
           </div>
 
           <div className="mt-5">
-            <label className={labelClassName} htmlFor="source">
+            <label className={labelClassName} htmlFor="meaning">
               ことばの意味
             </label>
-            <textarea
-              id="meaning"
-              name="meaning"
-              defaultValue={word.meaning ?? ""}
+            <MeaningTextareaWithSuggestion
+              defaultValue={savedMeaning}
+              suggestion={meaningSuggestion}
               rows={4}
               maxLength={wordFieldLimits.meaning}
               className={inputClassName}

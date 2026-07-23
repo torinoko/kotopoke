@@ -2,9 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { MeaningTextareaWithSuggestion } from "@/components/meaning-textarea-with-suggestion";
 import { ReadingInputWithSuggestions } from "@/components/reading-input-with-suggestions";
 import { wordFieldLimits } from "@/lib/word-validation";
-import { getOwnWord, getReadingSuggestions } from "@/lib/words-store";
+import {
+  getMeaningSuggestion,
+  getOwnWord,
+  getReadingSuggestions,
+  getSavedMeaningInputValue,
+} from "@/lib/words-store";
 import { updateWordReflectionAction } from "@/app/kotoba/[id]/collect/actions";
 
 const inputClassName =
@@ -28,6 +34,8 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
 
   const action = updateWordReflectionAction.bind(null, word.id);
   const readingSuggestions = await getReadingSuggestions(word.id);
+  const savedMeaning = await getSavedMeaningInputValue(word.id);
+  const meaningSuggestion = await getMeaningSuggestion(word.id);
 
   return (
     <main className="min-h-screen bg-[#fbf8f1] text-stone-700">
@@ -91,14 +99,13 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
               ことばの意味
               <span className="ml-2 text-xs text-stone-400">任意</span>
             </label>
-            <textarea
-              id="meaning"
-              name="meaning"
-              placeholder="辞書から意味を見つけられませんでした。必要であれば追記できます。"
-              defaultValue={word.meaning ?? ""}
+            <MeaningTextareaWithSuggestion
+              defaultValue={savedMeaning}
+              suggestion={meaningSuggestion}
               rows={5}
               maxLength={wordFieldLimits.meaning}
               className={inputClassName}
+              placeholder="辞書から意味を見つけられませんでした。必要であれば追記できます。"
             />
             <p className="mt-1 text-xs text-stone-400">
               {wordFieldLimits.meaning}文字まで

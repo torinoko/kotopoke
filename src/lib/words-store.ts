@@ -63,18 +63,26 @@ function getStableIndex(seed: string, size: number) {
 async function getDictionaryFields(
   text: string,
   currentReading?: string | null,
-  currentMeaning?: string | null,
 ) {
   const wordNetResult = await searchWordNet(text);
   const reading = currentReading ?? (await getKanaReading(text));
+  const meaning = wordNetResult
+    ? formatWordNetMeanings(wordNetResult.meanings)
+    : undefined;
 
   return {
     reading,
-    meaning:
-      currentMeaning ??
-      (wordNetResult ? formatWordNetMeanings(wordNetResult.meanings) : undefined),
+    meaning,
     relatedWords: wordNetResult?.relatedWords ?? [],
   };
+}
+
+async function getWordNetMeaning(text: string) {
+  const wordNetResult = await searchWordNet(text);
+
+  return wordNetResult
+    ? formatWordNetMeanings(wordNetResult.meanings)
+    : undefined;
 }
 
 async function getOrCreateKotoba(input: {
@@ -85,7 +93,6 @@ async function getOrCreateKotoba(input: {
   const dictionaryFields = await getDictionaryFields(
     input.text,
     input.reading,
-    input.meaning,
   );
   const existingKotoba = await prisma.kotoba.findUnique({
     where: {
@@ -273,7 +280,6 @@ async function addMissingDictionaryFields(
   const dictionaryFields = await getDictionaryFields(
     word.text,
     word.reading,
-    word.meaning,
   );
 
   if (
@@ -294,10 +300,7 @@ async function addMissingDictionaryFields(
     });
   }
 
-  if (
-    (!userKotoba.reading && dictionaryFields.reading) ||
-    (!userKotoba.meaning && dictionaryFields.meaning)
-  ) {
+  if (!userKotoba.reading && dictionaryFields.reading) {
     const sense = await getOrCreateKotobaSense({
       kotobaId: userKotoba.kotoba.id,
       reading: dictionaryFields.reading,
@@ -311,7 +314,6 @@ async function addMissingDictionaryFields(
       data: {
         senseId: sense?.id ?? undefined,
         reading: userKotoba.reading ?? toNullable(dictionaryFields.reading),
-        meaning: userKotoba.meaning ?? toNullable(dictionaryFields.meaning),
       },
     });
 
@@ -410,6 +412,90 @@ export async function getReadingSuggestions(id: string): Promise<string[]> {
   return senses.map((sense) => sense.reading);
 }
 
+export async function getSavedMeaningInputValue(id: string): Promise<string> {
+  const user = await getCurrentUser();
+  const word = await prisma.userKotoba.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      meaning: true,
+      kotoba: {
+        select: {
+          text: true,
+          defaultMeaning: true,
+        },
+      },
+    },
+  });
+
+  const savedMeaning = normalizeOptionalText(word?.meaning);
+
+  if (savedMeaning) {
+    return savedMeaning;
+  }
+
+  const defaultMeaning = normalizeOptionalText(word?.kotoba.defaultMeaning);
+  const wordNetMeaning = word ? await getWordNetMeaning(word.kotoba.text) : null;
+
+  return defaultMeaning && defaultMeaning === wordNetMeaning
+    ? defaultMeaning
+    : "";
+}
+
+export async function getMeaningSuggestion(id: string): Promise<string | null> {
+  const user = await getCurrentUser();
+  const word = await prisma.userKotoba.findFirst({
+    where: {
+      id,
+      userId: user.id,
+    },
+    select: {
+      kotobaId: true,
+      kotoba: {
+        select: {
+          text: true,
+          defaultMeaning: true,
+        },
+      },
+    },
+  });
+
+  if (!word) {
+    return null;
+  }
+
+  const defaultMeaning = normalizeOptionalText(word.kotoba.defaultMeaning);
+
+  if (defaultMeaning) {
+    const wordNetMeaning = await getWordNetMeaning(word.kotoba.text);
+
+    return defaultMeaning === wordNetMeaning ? null : defaultMeaning;
+  }
+
+  const suggestedWord = await prisma.userKotoba.findFirst({
+    where: {
+      kotobaId: word.kotobaId,
+      meaning: {
+        not: null,
+      },
+      userId: {
+        not: user.id,
+      },
+      user: {
+        isPublic: true,
+      },
+    },
+    orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
+    select: {
+      meaning: true,
+    },
+  });
+
+  return normalizeOptionalText(suggestedWord?.meaning) ?? null;
+}
+
 export async function createWord(input: WordInput): Promise<{
   word: Word;
   created: boolean;
@@ -417,7 +503,6 @@ export async function createWord(input: WordInput): Promise<{
   const user = await getCurrentUser();
   const kotoba = await getOrCreateKotoba(input);
   const reading = input.reading ?? kotoba.defaultReading ?? undefined;
-  const meaning = input.meaning ?? kotoba.defaultMeaning ?? undefined;
   const sense = await getOrCreateKotobaSense({
     kotobaId: kotoba.id,
     reading,
@@ -446,7 +531,7 @@ export async function createWord(input: WordInput): Promise<{
       senseId: sense?.id,
       reading: toNullable(reading),
       source: toNullable(input.source),
-      meaning: toNullable(meaning),
+      meaning: toNullable(input.meaning),
       impression: toNullable(input.impression),
       collectedAt: new Date().toISOString(),
     },
@@ -475,8 +560,6 @@ export async function createAnotherWordEncounter(id: string): Promise<Word | nul
 
   const reading =
     currentWord.reading ?? currentWord.kotoba.defaultReading ?? undefined;
-  const meaning =
-    currentWord.meaning ?? currentWord.kotoba.defaultMeaning ?? undefined;
   const sense = await getOrCreateKotobaSense({
     kotobaId: currentWord.kotoba.id,
     reading,
@@ -488,7 +571,6 @@ export async function createAnotherWordEncounter(id: string): Promise<Word | nul
       kotobaId: currentWord.kotoba.id,
       senseId: sense?.id,
       reading: toNullable(reading),
-      meaning: toNullable(meaning),
       collectedAt: new Date().toISOString(),
     },
     include: userKotobaInclude,
