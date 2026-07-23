@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 const siteName = "ことぽけ";
 const description =
-  "どこかで出会った気になることば。ポケットへしまうように、集めてみませんか。";
+  "大切なことばをしまっておく、あなただけのたからばこ。";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
