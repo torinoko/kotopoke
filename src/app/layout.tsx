@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     images: [
       {
-        url: "/kotopoke_main_logo.png",
+        url: "/kotopoke_ogp.png",
         width: 1160,
         height: 1200,
         alt: "ことぽけ",
