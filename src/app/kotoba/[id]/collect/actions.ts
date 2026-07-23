@@ -2,7 +2,7 @@
 
 import { notFound, redirect } from "next/navigation";
 import { parseWordReflectionInput } from "@/lib/word-validation";
-import { updateWordReflection } from "@/lib/words-store";
+import { deleteWord, updateWordReflection } from "@/lib/words-store";
 
 export async function updateWordReflectionAction(
   id: string,
@@ -21,4 +21,14 @@ export async function updateWordReflectionAction(
   }
 
   redirect(`/kotoba/${word.id}`);
+}
+
+export async function deleteWordAction(id: string) {
+  const deleted = await deleteWord(id);
+
+  if (!deleted) {
+    notFound();
+  }
+
+  redirect("/kotobatachi");
 }

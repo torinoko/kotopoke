@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { DeleteWordForm } from "@/components/delete-word-form";
 import { MeaningTextareaWithSuggestion } from "@/components/meaning-textarea-with-suggestion";
 import { ReadingInputWithSuggestions } from "@/components/reading-input-with-suggestions";
 import { wordFieldLimits } from "@/lib/word-validation";
@@ -11,7 +12,10 @@ import {
   getReadingSuggestions,
   getSavedMeaningInputValue,
 } from "@/lib/words-store";
-import { updateWordReflectionAction } from "@/app/kotoba/[id]/collect/actions";
+import {
+  deleteWordAction,
+  updateWordReflectionAction,
+} from "@/app/kotoba/[id]/collect/actions";
 
 const inputClassName =
   "mt-2 w-full rounded-md border border-stone-200 bg-[#fffdf8] px-3 py-3 text-stone-700 outline-none transition placeholder:text-stone-400 focus:border-[#5f8f86] focus:ring-2 focus:ring-[#dfeae6]";
@@ -33,6 +37,7 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
   }
 
   const action = updateWordReflectionAction.bind(null, word.id);
+  const deleteAction = deleteWordAction.bind(null, word.id);
   const readingSuggestions = await getReadingSuggestions(word.id);
   const savedMeaning = await getSavedMeaningInputValue(word.id);
   const meaningSuggestion = await getMeaningSuggestion(word.id);
@@ -164,6 +169,12 @@ export default async function CollectWordPage({ params }: CollectWordPageProps) 
             </Link>
           </div>
         </form>
+
+        <section className="mt-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <DeleteWordForm action={deleteAction} />
+          </div>
+        </section>
 
         <AppFooter />
       </div>
