@@ -33,8 +33,13 @@ export default async function UserPage({ params, searchParams }: UserPageProps) 
     notFound();
   }
 
-  const currentUser = await getCurrentUser();
-  const isOwner = currentUser.id === user.id;
+  let isOwner = false;
+
+  if (!user.isPublic) {
+    const currentUser = await getCurrentUser();
+    isOwner = currentUser.id === user.id;
+  }
+
   const canViewWords = user.isPublic || isOwner;
 
   const wordsPage = canViewWords
