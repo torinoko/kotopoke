@@ -188,11 +188,9 @@ export async function getWordsPage(page: number): Promise<{
   currentPage: number;
   totalPages: number;
 }> {
-  const user = await getCurrentUser();
-  const where =
-    user.id === defaultUserId
-      ? { OR: [{ userId: user.id }, { user: { isPublic: true } }] }
-      : { userId: user.id };
+  const where = {
+    OR: [{ userId: defaultUserId }, { user: { isPublic: true } }],
+  };
   const totalCount = await prisma.userKotoba.count({
     where,
   });

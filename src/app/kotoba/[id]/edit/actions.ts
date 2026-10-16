@@ -1,6 +1,7 @@
 "use server";
 
 import { notFound, redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/users-store";
 import { parseWordInput } from "@/lib/word-validation";
 import { deleteWord, updateWord } from "@/lib/words-store";
 
@@ -27,5 +28,6 @@ export async function deleteWordAction(id: string) {
     notFound();
   }
 
-  redirect("/kotobatachi");
+  const user = await getCurrentUser();
+  redirect(`/${user.slug}/kotobatachi`);
 }

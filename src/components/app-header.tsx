@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LogoutForm } from "@/components/logout-form";
-import { getCurrentUser } from "@/lib/users-store";
+import { defaultUserId, getCurrentUser } from "@/lib/users-store";
 
 type AppHeaderProps = {
   title?: string;
@@ -17,9 +17,7 @@ export async function AppHeader({
   logoSrc = "/kotopoke_donguri.png",
 }: AppHeaderProps) {
   const user = await getCurrentUser();
-  const isAnonymousUser = user.name === "名無しさん";
-  const wordsLinkLabel =
-    isAnonymousUser ? "ことばたち" : `${user.name}のことばたち`;
+  const isAnonymousUser = user.id === defaultUserId;
 
   return (
     <header className={`border-b border-stone-200 pb-4 ${className}`}>
@@ -43,8 +41,13 @@ export async function AppHeader({
           >
             ことばにであう
           </Link>
+          {!isAnonymousUser && (
+            <Link href={`/${user.slug}/kotobatachi`} className="transition hover:text-[#5f8f86]">
+              {user.name}のことばたち
+            </Link>
+          )}
           <Link href="/kotobatachi" className="transition hover:text-[#5f8f86]">
-            {wordsLinkLabel}
+            みんなのことばたち
           </Link>
           {!isAnonymousUser && (
             <Link href="/settings" className="transition hover:text-[#5f8f86]">
