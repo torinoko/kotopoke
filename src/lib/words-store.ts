@@ -348,6 +348,9 @@ export async function getWord(id: string): Promise<Word | null> {
           userId: user.id,
         },
         {
+          userId: defaultUserId,
+        },
+        {
           user: {
             isPublic: true,
           },
