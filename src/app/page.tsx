@@ -106,6 +106,17 @@ export default async function Home() {
             </div>
           </div>
         </div>
+        <section aria-labelledby="news-heading" className="mt-8 text-sm">
+          <h2 id="news-heading" className="font-semibold text-[#3f6f62]">
+            お知らせ
+          </h2>
+          <div className="mt-3 space-y-1 leading-6 text-stone-500">
+            <time dateTime="2026-10-16" className="block text-xs">
+              2026/10/16
+            </time>
+            <p>みんなのことば一覧をちゃんと表示できるように直しました。</p>
+          </div>
+        </section>
         <AppFooter />
       </section>
     </main>
