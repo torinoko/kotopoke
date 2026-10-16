@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Word, WordInput } from "@/types/word";
 import { getKanaReading } from "@/lib/kana-reading-store";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/users-store";
+import { defaultUserId, getCurrentUser } from "@/lib/users-store";
 import { formatWordNetMeanings, searchWordNet } from "@/lib/wordnet-store";
 
 type PrismaUserKotoba = {
@@ -189,17 +189,17 @@ export async function getWordsPage(page: number): Promise<{
   totalPages: number;
 }> {
   const user = await getCurrentUser();
+  const where =
+    user.id === defaultUserId
+      ? { OR: [{ userId: user.id }, { user: { isPublic: true } }] }
+      : { userId: user.id };
   const totalCount = await prisma.userKotoba.count({
-    where: {
-      userId: user.id,
-    },
+    where,
   });
   const totalPages = Math.max(1, Math.ceil(totalCount / wordsPageSize));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
   const words = await prisma.userKotoba.findMany({
-    where: {
-      userId: user.id,
-    },
+    where,
     include: userKotobaInclude,
     orderBy: [{ collectedAt: "desc" }, { id: "asc" }],
     skip: (currentPage - 1) * wordsPageSize,
